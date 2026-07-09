@@ -1,11 +1,11 @@
-// Pinned download sources for Windows-native CLI tools vendored into
+// Pinned download sources for platform CLI tools vendored into
 // packages/desktop/resources. Kept separate from vendor-bin.ts so unit tests
 // can assert URLs/versions without running network or brew.
 
-export type VendorTarget = "darwin" | "win32";
+export type VendorTarget = "darwin" | "win32" | "linux";
 
 /** Resolve which platform's tool layout to vendor.
- *  VENDOR_TARGET=win32|darwin overrides process.platform (for cross-prep on CI/Linux). */
+ *  VENDOR_TARGET=win32|darwin|linux overrides process.platform (cross-prep on CI). */
 export function resolveVendorTarget(
   env: NodeJS.ProcessEnv = process.env,
   platform: NodeJS.Platform = process.platform,
@@ -13,11 +13,13 @@ export function resolveVendorTarget(
   const raw = (env.VENDOR_TARGET ?? "").trim().toLowerCase();
   if (raw === "win32" || raw === "windows" || raw === "win") return "win32";
   if (raw === "darwin" || raw === "mac" || raw === "macos") return "darwin";
+  if (raw === "linux") return "linux";
   if (platform === "win32") return "win32";
   if (platform === "darwin") return "darwin";
+  if (platform === "linux") return "linux";
   throw new Error(
-    `vendor-bin: unsupported platform "${platform}". Run on macOS or Windows, ` +
-      `or set VENDOR_TARGET=win32|darwin to cross-prepare binaries.`,
+    `vendor-bin: unsupported platform "${platform}". Run on macOS, Windows, or Linux, ` +
+      `or set VENDOR_TARGET=win32|darwin|linux to cross-prepare binaries.`,
   );
 }
 
@@ -60,4 +62,22 @@ export const DARWIN_TOOLS = [
 /** Windows executable names the app looks up under resources/bin. */
 export function windowsToolExes(): string[] {
   return [WIN_HLEDGER.exe, WIN_POPPLER.exe, "tesseract.exe"];
+}
+
+/** Linux tool download pins (hledger official release; PDF/OCR via PATH or host copy). */
+export const LINUX_HLEDGER = {
+  version: "1.52.1",
+  url: "https://github.com/simonmichael/hledger/releases/download/1.52.1/hledger-linux-x64.tar.gz",
+  exe: "hledger",
+  homepage: "https://hledger.org/",
+  license: "GPL-3.0-or-later",
+  source: "https://github.com/simonmichael/hledger/releases/tag/1.52.1",
+} as const;
+
+/** Tessdata pin shared with Windows (platform-independent file). */
+export const LINUX_TESSDATA_ENG = WIN_TESSDATA_ENG;
+
+/** Linux tool names under resources/bin (hledger required; others optional PATH). */
+export function linuxToolExes(): string[] {
+  return [LINUX_HLEDGER.exe, "pdftotext", "tesseract"];
 }

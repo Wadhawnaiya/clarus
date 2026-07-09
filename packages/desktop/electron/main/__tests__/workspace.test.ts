@@ -113,6 +113,7 @@ describe("openClientFolder()", () => {
     expect(h.dirs.has("/clients/acme/ledger")).toBe(true);
     expect(h.dirs.has("/clients/acme/files")).toBe(true);
     expect(h.dirs.has("/clients/acme/sessions")).toBe(true);
+    expect(h.dirs.has("/clients/acme/reviews")).toBe(true);
     expect(JSON.parse(h.files.get(SETTINGS_PATH) ?? "{}")).toMatchObject({
       lastClientPath: "/clients/acme",
       recentClientPaths: ["/clients/acme"],

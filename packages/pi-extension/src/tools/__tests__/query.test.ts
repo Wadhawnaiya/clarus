@@ -206,6 +206,18 @@ describe("arg-building", () => {
     expect(args).toContain("Assets:Checking");
   });
 
+  test("maps tb report to bal subcommand", async () => {
+    await run({ report: "tb" });
+    const args = spawnArgs();
+    expect(args[1]).toBe("bal");
+  });
+
+  test("maps cf report to cashflow subcommand", async () => {
+    await run({ report: "cf" });
+    const args = spawnArgs();
+    expect(args[1]).toBe("cashflow");
+  });
+
   test("builds args with all filters combined", async () => {
     await run({
       report: "reg",

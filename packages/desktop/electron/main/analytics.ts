@@ -6,24 +6,24 @@
 
 import { initialize, trackEvent } from "@aptabase/electron/main";
 import { ipcMain } from "electron";
+import { APTABASE_APP_KEY, isAnalyticsConfigured } from "./product";
 import { consumeOnce, isAnalyticsEnabled } from "./settings";
 
 type EventProps = Record<string, string | number>;
 
-// Not a secret — Aptabase app keys are embedded in the client, like a website
-// analytics id. EU region instance.
-const APP_KEY = "A-EU-0473586488";
-
-/** Initialize the Aptabase SDK. Safe to call before tracking; emits nothing on
- *  its own. */
+/** Initialize the Aptabase SDK when a firm app key is configured. Safe to call
+ *  before tracking; emits nothing on its own. No-op when APTABASE_APP_KEY is empty
+ *  (pilot default — do not use upstream product keys). */
 export function initAnalytics(): void {
-  initialize(APP_KEY);
+  if (!isAnalyticsConfigured()) return;
+  initialize(APTABASE_APP_KEY);
 }
 
 /** The single opt-out gate: every event flows through here (directly or via
  *  trackOnce). Callers fire unconditionally and never check the setting —
  *  the only exception is trackAnalyticsToggle (see its note). */
 function track(event: string, props?: EventProps): void {
+  if (!isAnalyticsConfigured()) return;
   if (!isAnalyticsEnabled()) return;
   trackEvent(event, props);
 }
@@ -81,6 +81,7 @@ export function trackUpdateFailed(kind: "check" | "download"): void {
  *  setting has already flipped to off when this fires), and "enabled" is sent
  *  right after they opt back in. */
 export function trackAnalyticsToggle(enabled: boolean): void {
+  if (!isAnalyticsConfigured()) return;
   trackEvent(enabled ? "analytics_enabled" : "analytics_disabled");
 }
 

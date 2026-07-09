@@ -23,12 +23,13 @@ artifactName: ${productName}.${ext}
 # separate matrix job, both jobs would upload the SAME-named latest-mac.yml to
 # one release and can 422 each other — build both arches in one job or use
 # per-arch channel files then.
-# Publish target remains the upstream fork host until Clarus has its own release
-# repo; update owner/repo when the firm distribution channel is ready.
+# Firm Clarus release channel (must stay in sync with product.ts
+# UPDATE_FEED_GITHUB_OWNER / UPDATE_FEED_GITHUB_REPO). Silent auto-update is
+# still gated by AUTO_UPDATE_ENABLED in product.ts for unsigned pilot builds.
 publish:
   provider: github
-  owner: machulav
-  repo: accountant24
+  owner: Wadhawnaiya
+  repo: clarus
 
 # out/ (electron-vite build) + the app manifest. electron-builder also bundles
 # the production dependencies (pi SDK, react, …) automatically.
@@ -99,3 +100,21 @@ nsis:
 
 portable:
   artifactName: ${productName}-Portable.${ext}
+
+# Linux pilot (x64). AppImage is the primary staff install; deb for apt-based hosts.
+# Vendored tools under resources/bin must be the Linux builds from
+# `VENDOR_TARGET=linux` scripts/vendor-bin.ts. PDF/OCR also work via host packages
+# (poppler-utils, tesseract-ocr) when not fully bundled.
+linux:
+  target:
+    - target: AppImage
+      arch: [x64]
+    - target: deb
+      arch: [x64]
+  category: Office
+  icon: build/icon.png
+  executableName: Clarus
+  artifactName: ${productName}-${version}.${ext}
+  maintainer: Clarus <noreply@clarus.local>
+  synopsis: Local-first AI for firm bookkeeping
+  description: Prepare client books and review-ready FS, GSTR, and ITR workpapers.

@@ -36,10 +36,15 @@ function createMockPi() {
 }
 
 describe("clarusExtension()", () => {
-  test("should register 6 custom tools (built-ins are pi's own)", () => {
+  test("should register 9 custom tools (built-ins are pi's own)", () => {
     const pi = createMockPi();
     clarusExtension(pi as any);
-    expect(pi.registerTool).toHaveBeenCalledTimes(6);
+    expect(pi.registerTool).toHaveBeenCalledTimes(9);
+    const names = pi.registerTool.mock.calls.map((c: unknown[]) => (c[0] as { name: string }).name);
+    expect(names).toContain("generate_fs_pack");
+    expect(names).toContain("generate_gstr_pack");
+    expect(names).toContain("generate_itr_pack");
+    expect(names).toContain("query");
   });
 
   test("should register session_start and before_agent_start handlers", () => {

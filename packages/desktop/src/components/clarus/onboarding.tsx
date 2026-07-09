@@ -41,13 +41,13 @@ export function Onboarding() {
             <OptionCard
               icon={KeyRound}
               title="Use an API key"
-              subtitle="Anthropic · OpenAI · Google · more"
+              subtitle="OpenRouter · NVIDIA NIM · Anthropic · OpenAI · more"
               onClick={onConnect}
             />
             <OptionCard
               icon={Laptop}
               title="Connect Ollama"
-              subtitle="Run local models · free and fully offline"
+              subtitle="Optional local models · free and fully offline"
               onClick={onConnect}
             />
           </div>

@@ -1,141 +1,94 @@
-; Default chart of accounts for Clarus
+; Clarus India firm chart of accounts (v1)
+; Entity: sole proprietorship (default). Adjust names for partnership / company.
+; Currency: INR (see commodities.journal)
 ;
 ; Account types:
-;   ASSETS       — things you own (bank accounts, cash, investments)
-;   LIABILITIES  — things you owe (credit cards, loans, mortgages)
-;   EQUITY       — owner's investment, balances assets and liabilities
-;   INCOME       — inflows of money (salary, business, interest)
-;   EXPENSES     — outflows of money (rent, groceries, subscriptions)
+;   ASSETS       — bank, cash, receivables, GST input, fixed assets, deposits
+;   LIABILITIES  — payables, GST output, TDS, loans, provisions
+;   EQUITY       — capital, drawings, opening balances
+;   INCOME       — sales / professional fees / other inflows
+;   EXPENSES     — purchases, operating costs, finance, taxes
 
 ; ====================================================================
-; ASSETS — things you own (bank accounts, cash, investments)
+; ASSETS
 ; ====================================================================
 
+account assets:bank:current
+account assets:bank:savings
 account assets:cash
+account assets:receivables:trade
+account assets:receivables:other
+account assets:inventory
+account assets:gst:input-cgst
+account assets:gst:input-sgst
+account assets:gst:input-igst
+account assets:deposits
+account assets:prepaid
+account assets:fixed-assets:plant-and-machinery
+account assets:fixed-assets:furniture-and-fixtures
+account assets:fixed-assets:vehicles
+account assets:fixed-assets:computers
+account assets:fixed-assets:other
 
 ; ====================================================================
-; LIABILITIES — things you owe (credit cards, loans, mortgages)
+; LIABILITIES
 ; ====================================================================
 
-account liabilities:credit-card
-account liabilities:mortgage
-account liabilities:car-loan
-account liabilities:student-loan
-account liabilities:loan
+account liabilities:payables:trade
+account liabilities:payables:other
+account liabilities:gst:output-cgst
+account liabilities:gst:output-sgst
+account liabilities:gst:output-igst
+account liabilities:gst:payable
+account liabilities:tds-payable
+account liabilities:loans:bank
+account liabilities:loans:other
+account liabilities:provisions
+account liabilities:salary-payable
 
 ; ====================================================================
-; EQUITY — owner's investment, balances assets and liabilities
+; EQUITY — sole prop capital / drawings
 ; ====================================================================
 
+account equity:capital
+account equity:drawings
 account equity:opening-balances
 
 ; ====================================================================
-; INCOME — inflows of money (salary, business, interest)
+; INCOME
 ; ====================================================================
 
-account income:salary
-account income:business
-account income:investment
+account income:sales:taxable
+account income:sales:exempt
+account income:sales:exports
+account income:professional-fees
 account income:interest
-account income:rental
-account income:gifts-received
-account income:government-benefits
-account income:tax-refund
 account income:other
 
 ; ====================================================================
-; EXPENSES — outflows of money (rent, groceries, subscriptions)
+; EXPENSES
 ; ====================================================================
 
-account expenses:housing:rent
-account expenses:housing:insurance
-account expenses:housing:maintenance-and-repairs
-account expenses:housing:other
-
+account expenses:purchases:taxable
+account expenses:purchases:exempt
+account expenses:salaries-and-wages
+account expenses:rent
 account expenses:utilities:electricity
-account expenses:utilities:gas
-account expenses:utilities:water
 account expenses:utilities:internet
 account expenses:utilities:phone
-account expenses:utilities:sewage-and-waste
 account expenses:utilities:other
-
-account expenses:food:groceries
-account expenses:food:dining-out
-account expenses:food:delivery
-account expenses:food:coffee-shops
-account expenses:food:other
-
-account expenses:transport:fuel
-account expenses:transport:public-transit
-account expenses:transport:taxi-and-rideshare
-account expenses:transport:carsharing
-account expenses:transport:parking
-account expenses:transport:car-insurance
-account expenses:transport:car-maintenance
-account expenses:transport:bike-and-scooter
-account expenses:transport:other
-
-account expenses:shopping:clothing-and-accessories
-account expenses:shopping:electronics
-account expenses:shopping:home-goods-and-furniture
-account expenses:shopping:other
-
-account expenses:entertainment:events-and-activities
-account expenses:entertainment:video-games
-account expenses:entertainment:hobbies
-account expenses:entertainment:other
-
-account expenses:travel:transportation
-account expenses:travel:accommodation
-account expenses:travel:food
-account expenses:travel:other
-
-account expenses:health:insurance
-account expenses:health:doctor-and-hospital
-account expenses:health:pharmacy-and-medications
-account expenses:health:other
-
-account expenses:personal-care:hair-and-beauty
-account expenses:personal-care:gym-and-fitness
-account expenses:personal-care:other
-
-account expenses:education:tuition-and-courses
-account expenses:education:books
-account expenses:education:other
-
-account expenses:children:childcare
-account expenses:children:activities
-account expenses:children:other
-
-account expenses:pets:food-and-supplies
-account expenses:pets:vet-and-health
-account expenses:pets:other
-
-account expenses:financial:bank-fees
-account expenses:financial:credit-card-interest
-account expenses:financial:mortgage-interest
-account expenses:financial:car-loan-interest
-account expenses:financial:student-loan-interest
-account expenses:financial:loan-interest
-account expenses:financial:other
-
+account expenses:office:supplies
+account expenses:office:software
+account expenses:office:other
+account expenses:travel-and-conveyance
+account expenses:professional-fees
+account expenses:marketing
+account expenses:repairs-and-maintenance
+account expenses:insurance
+account expenses:depreciation
+account expenses:bank-charges
+account expenses:interest
+account expenses:gst:reverse-charge
 account expenses:taxes:income-tax
-account expenses:taxes:property-tax
 account expenses:taxes:other
-
-account expenses:professional-services:legal
-account expenses:professional-services:tax-and-accounting
-account expenses:professional-services:consulting
-account expenses:professional-services:other
-
-account expenses:gifts-and-donations:gifts
-account expenses:gifts-and-donations:charity
-account expenses:gifts-and-donations:other
-
-account expenses:subscriptions:streaming
-account expenses:subscriptions:software-and-apps
-account expenses:subscriptions:memberships
-account expenses:subscriptions:other
-
 account expenses:uncategorized

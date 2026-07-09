@@ -1,30 +1,22 @@
 Clarus — Third-Party Licenses
 
-This application bundles the command-line tools below for Windows. Their
+This application bundles the command-line tools below for Linux. Their
 licenses and corresponding source locations are listed for each entry.
 
 ================================================================
-hledger (hledger.exe) 1.52.1 — GPL-3.0-or-later
+hledger (hledger) 1.52.1 — GPL-3.0-or-later
 Project: https://hledger.org/
 Corresponding source: https://github.com/simonmichael/hledger/releases/tag/1.52.1
 ----------------------------------------------------------------
 Full license text: see the GPL-3.0 text in the hledger source repository.
 
 ================================================================
-poppler (pdftotext.exe) 24.08.0-0 — GPL-2.0-or-later
-Project: https://github.com/oschwartz10612/poppler-windows
-Corresponding source: https://github.com/oschwartz10612/poppler-windows/releases/tag/v24.08.0-0
-----------------------------------------------------------------
-Full license text: see the GPL-2.0 text in the poppler source distribution.
-DLLs beside pdftotext.exe are redistributed with the poppler-windows build.
-
-================================================================
 tesseract eng.traineddata — Apache-2.0
 Project: https://github.com/tesseract-ocr/tessdata
 Corresponding source: https://github.com/tesseract-ocr/tessdata/tree/4.1.0
 ----------------------------------------------------------------
-OCR language data (eng). tesseract.exe itself is vendored when available
-from the build host (winget/choco) or left to PATH.
+OCR language data (eng). pdftotext and tesseract.exe-equivalent are
+typically provided by the host (poppler-utils / tesseract-ocr packages).
 
-Note: tesseract.exe was not bundled in this build; install Tesseract OCR on the host for image OCR,
-Note: or re-run vendor-bin on a Windows machine with Tesseract installed.
+Note: pdftotext copied from host /usr/bin/pdftotext (host shared libraries still required)
+Note: tesseract not found on host — install poppler-utils / tesseract-ocr for PDF/OCR

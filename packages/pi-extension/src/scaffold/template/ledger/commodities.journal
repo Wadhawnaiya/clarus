@@ -1,1 +1,7 @@
-; Commodity declarations
+; Commodity declarations — India firm default (INR)
+;
+; Amounts use the INR commodity. Add more commodities only when the client
+; genuinely needs multi-currency books.
+
+commodity 1,000.00 INR
+D 1000.00 INR

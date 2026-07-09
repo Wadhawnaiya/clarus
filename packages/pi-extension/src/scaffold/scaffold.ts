@@ -36,7 +36,7 @@ function writeIfNotExists(filePath: string, content: string): void {
 export async function ensureScaffolded(): Promise<void> {
   const home = CLARUS_HOME;
 
-  for (const dir of ["ledger", "files", "sessions"]) {
+  for (const dir of ["ledger", "files", "sessions", "reviews"]) {
     mkdirSync(join(home, dir), { recursive: true });
   }
 

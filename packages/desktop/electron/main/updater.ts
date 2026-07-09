@@ -7,17 +7,19 @@
 import { app } from "electron";
 import electronUpdater from "electron-updater"; // CJS package: default-import, then destructure
 import { trackUpdateDownloaded, trackUpdateFailed } from "./analytics";
+import { AUTO_UPDATE_ENABLED } from "./product";
 
 const { autoUpdater } = electronUpdater;
 
 const STARTUP_DELAY_MS = 30_000; // don't compete with launch work (agent spawn, window)
 const CHECK_INTERVAL_MS = 4 * 60 * 60 * 1000;
 
-/** Updates run only in packaged stable builds. rc versions (0.3.0-rc.1) must
- *  not self-update — a newer stable would otherwise be offered to them even
- *  with allowPrerelease=false. */
+/** Updates run only when the firm has enabled them, and only in packaged stable
+ *  builds. rc versions (0.3.0-rc.1) must not self-update — a newer stable would
+ *  otherwise be offered to them even with allowPrerelease=false. Pilot default
+ *  keeps AUTO_UPDATE_ENABLED false so unsigned builds never pull a feed. */
 export function shouldAutoUpdate(isPackaged: boolean, version: string): boolean {
-  return isPackaged && !version.includes("-");
+  return AUTO_UPDATE_ENABLED && isPackaged && !version.includes("-");
 }
 
 export function initAutoUpdater(): void {

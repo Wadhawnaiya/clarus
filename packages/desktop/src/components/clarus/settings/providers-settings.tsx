@@ -9,6 +9,12 @@ import { Badge } from "@/components/shadcn/badge";
 import { Button } from "@/components/shadcn/button";
 import { Input } from "@/components/shadcn/input";
 import { addEnabledModels, parseModelId } from "@/lib/enabledModels";
+import {
+  apiKeyPlaceholder,
+  FEATURED_CLOUD_API_PROVIDERS,
+  featuredCloudBadge,
+  isFeaturedCloudApiProvider,
+} from "@/lib/providerHints";
 import { agentApi, authApi, settingsApi } from "@/rpc/api";
 import type { AuthProviderRow, AuthStatus } from "@/rpc/types";
 import { ErrorBanner, Section } from "./parts";
@@ -97,6 +103,13 @@ function ProvidersList({ status, reload }: { status: AuthStatus | null; reload: 
   const connected = status.providers.filter((p) => p.configured).sort(byName);
   const available = status.providers.filter((p) => !p.configured).sort(byName);
 
+  // OpenRouter + NVIDIA NIM first: cloud API keys without requiring local Ollama.
+  const featuredAvailable = FEATURED_CLOUD_API_PROVIDERS.map((id) => available.find((p) => p.provider === id)).filter(
+    (p): p is AuthProviderRow => Boolean(p),
+  );
+  const featuredIds = new Set(featuredAvailable.map((p) => p.provider));
+  const otherAvailable = available.filter((p) => !featuredIds.has(p.provider));
+
   const renderRow = (p: AuthProviderRow) => (
     <ProviderRow
       key={p.provider}
@@ -124,11 +137,11 @@ function ProvidersList({ status, reload }: { status: AuthStatus | null; reload: 
   );
 
   // Ollama only appears in the provider list once a model is registered, so when
-  // it isn't connected yet we offer it as its own row — sorted in alphabetically
+  // it isn't connected yet we offer it as its own row — sorted alphabetically
   // with the rest rather than pinned to the bottom.
   const ollamaConnected = status.providers.some((p) => p.provider === "ollama" && p.configured);
   const availableItems = [
-    ...available.map((p) => ({ name: p.displayName, node: renderRow(p) })),
+    ...otherAvailable.map((p) => ({ name: p.displayName, node: renderRow(p) })),
     ...(ollamaAvailable && !ollamaConnected
       ? [{ name: "Ollama", node: <OllamaRow key="ollama" onConnected={() => afterAdd("ollama")} /> }]
       : []),
@@ -141,7 +154,15 @@ function ProvidersList({ status, reload }: { status: AuthStatus | null; reload: 
           <div className="flex flex-col gap-1">{connected.map(renderRow)}</div>
         </Section>
       )}
-      <Section title="Available" description="Connect a provider to use its models.">
+      {featuredAvailable.length > 0 && (
+        <Section
+          title="Cloud API keys"
+          description="Use OpenRouter or NVIDIA NIM with an API key — no local model required. Your client ledger stays on disk."
+        >
+          <div className="flex flex-col gap-1">{featuredAvailable.map(renderRow)}</div>
+        </Section>
+      )}
+      <Section title="Available" description="Connect a provider to use its models (subscription, API key, or local).">
         <div className="flex flex-col gap-1">{availableItems.map((it) => it.node)}</div>
       </Section>
     </>
@@ -205,9 +226,18 @@ function ProviderRow({
   return (
     <div>
       <div className="hover:bg-muted/50 flex items-center justify-between gap-3 rounded-md px-2 py-1.5">
-        <div className="min-w-0">
-          <div className="truncate text-sm font-medium">{p.displayName}</div>
-          {p.configured && p.connection && <div className="text-muted-foreground truncate text-xs">{p.connection}</div>}
+        <div className="flex min-w-0 items-center gap-2">
+          <div className="min-w-0">
+            <div className="truncate text-sm font-medium">{p.displayName}</div>
+            {p.configured && p.connection && (
+              <div className="text-muted-foreground truncate text-xs">{p.connection}</div>
+            )}
+          </div>
+          {!p.configured && isFeaturedCloudApiProvider(p.provider) && featuredCloudBadge(p.provider) && (
+            <Badge variant="secondary" className="shrink-0">
+              {featuredCloudBadge(p.provider)}
+            </Badge>
+          )}
         </div>
         <div className="flex shrink-0 items-center gap-2">
           {p.configured ? (
@@ -335,7 +365,7 @@ function ApiKeyInline({
         <Input
           type="password"
           value={key}
-          placeholder="Paste API key (sk-…)"
+          placeholder={apiKeyPlaceholder(provider)}
           autoFocus
           onChange={(e) => setKey(e.currentTarget.value)}
           onKeyDown={(e) => e.key === "Enter" && submit()}

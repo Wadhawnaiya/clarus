@@ -31,11 +31,11 @@ export function validateClientPath(dir: string): string {
   return absolute;
 }
 
-/** Ensure the standard client layout directories exist (ledger/files/sessions).
+/** Ensure the standard client layout directories exist (ledger/files/sessions/reviews).
  *  Journal/memory templates are filled by the agent extension on session_start
  *  when the folder is empty — we never overwrite existing books. */
 export function ensureClientLayout(dir: string): void {
-  for (const name of ["ledger", "files", "sessions"]) {
+  for (const name of ["ledger", "files", "sessions", "reviews"]) {
     mkdirSync(join(dir, name), { recursive: true });
   }
 }

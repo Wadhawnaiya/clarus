@@ -45,6 +45,14 @@ Every modification is auto-committed to a local git repo. Review history anytime
 3. Connect your LLM provider.
 4. Pick a model and start chatting (default workspace: `~/Clarus`).
 
+**Firm pilot (Windows + Linux install, OpenRouter/NVIDIA API keys, client folders, FS/GSTR/ITR packs):** see [`docs/pilot-install.md`](docs/pilot-install.md).
+
+```bash
+# Linux desktop package (from a Linux host after npm install)
+npm run vendor:bin:linux
+npm run dist:linux
+```
+
 ## Go fully local
 
 Want client financial data to never leave the machine? Run a local model with Ollama.

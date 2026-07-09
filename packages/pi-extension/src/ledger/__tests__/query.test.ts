@@ -102,6 +102,39 @@ describe("queryLedger()", () => {
       const result = await queryLedger({ report: "bal", invert: true });
       expect(result.command).toContain("--invert");
     });
+
+    test("should map tb report to hledger bal for trial balance", async () => {
+      const result = await queryLedger({ report: "tb" });
+      expect(result.command).toMatch(/^hledger bal /);
+      expect(result.command).not.toMatch(/^hledger tb /);
+    });
+
+    test("should map cf report to hledger cashflow", async () => {
+      const result = await queryLedger({ report: "cf" });
+      expect(result.command).toMatch(/^hledger cashflow /);
+    });
+
+    test("should pass is and bs reports through unchanged", async () => {
+      const isResult = await queryLedger({ report: "is" });
+      expect(isResult.command).toMatch(/^hledger is /);
+      const bsResult = await queryLedger({ report: "bs" });
+      expect(bsResult.command).toMatch(/^hledger bs /);
+    });
+  });
+
+  describe("queryTrialBalance()", () => {
+    beforeEach(() => {
+      vi.mocked(spawnText).mockResolvedValue(makeMockProc(0, "assets:cash  1000 INR"));
+    });
+
+    test("should return bal-based trial balance output", async () => {
+      const { queryTrialBalance } = await import("../query.js");
+      const result = await queryTrialBalance({ begin_date: "2025-04-01", end_date: "2026-04-01" });
+      expect(result.command).toMatch(/^hledger bal /);
+      expect(result.command).toContain("-b 2025-04-01");
+      expect(result.command).toContain("-e 2026-04-01");
+      expect(result.output).toBe("assets:cash  1000 INR");
+    });
   });
 
   describe("error handling", () => {

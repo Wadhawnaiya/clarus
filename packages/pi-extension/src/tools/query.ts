@@ -3,17 +3,20 @@ import { Type } from "typebox";
 import { type QueryLedgerResult, queryLedger } from "../ledger";
 
 const REPORT_TYPES =
-  "bal (balances/spending), reg (posting list), aregister (single account with running balance), " +
-  "is (income statement), bs (balance sheet), print (raw transactions), stats (overview)";
+  "bal (balances/spending), tb (trial balance — alias for bal), reg (posting list), " +
+  "aregister (single account with running balance), is (income statement / P&L), " +
+  "bs (balance sheet), cf (cash flow), print (raw transactions), stats (overview)";
 
 const Params = Type.Object({
   report: Type.Union(
     [
       Type.Literal("bal"),
+      Type.Literal("tb"),
       Type.Literal("reg"),
       Type.Literal("aregister"),
       Type.Literal("is"),
       Type.Literal("bs"),
+      Type.Literal("cf"),
       Type.Literal("print"),
       Type.Literal("stats"),
     ],

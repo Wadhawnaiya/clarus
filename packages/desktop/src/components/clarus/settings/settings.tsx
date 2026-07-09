@@ -7,6 +7,7 @@ import { CpuIcon, KeyboardIcon, PlugIcon, ShieldIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/shadcn/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/shadcn/dialog";
+import { PRODUCT_NAME, RELEASES_URL } from "@/lib/product";
 import { cn } from "@/lib/utils";
 import { appApi } from "@/rpc/api";
 import { AnalyticsSettings } from "./analytics-settings";
@@ -63,21 +64,26 @@ export function Settings({ open, onOpenChange }: { open: boolean; onOpenChange: 
               </Button>
             );
           })}
-          {/* Links to the full release history (each release carries its
-              changelog section as notes). Opens in the system browser via the
-              window-open handler. */}
+          {/* Version + firm changelog (RELEASES_URL). Opens in the system browser
+              via the window-open handler. Hidden link when URL is empty. */}
           {version && (
             <div className="text-muted-foreground/70 mt-auto flex items-center justify-center gap-1.5 px-2 pb-1 text-xs">
-              <span>v{version}</span>
-              <span aria-hidden>·</span>
-              <a
-                href="https://github.com/machulav/accountant24/releases"
-                target="_blank"
-                rel="noreferrer"
-                className="hover:text-foreground transition-colors"
-              >
-                Changelog
-              </a>
+              <span>
+                {PRODUCT_NAME} v{version}
+              </span>
+              {RELEASES_URL ? (
+                <>
+                  <span aria-hidden>·</span>
+                  <a
+                    href={RELEASES_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Changelog
+                  </a>
+                </>
+              ) : null}
             </div>
           )}
         </nav>

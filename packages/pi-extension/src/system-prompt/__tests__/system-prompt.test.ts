@@ -134,6 +134,41 @@ test("includes workspace section", () => {
   expect(prompt).toContain("</workspace>");
 });
 
+test("includes FS review workflow guidance", () => {
+  const prompt = getSystemPrompt(empty);
+  expect(prompt).toContain("<fs_review_workflow>");
+  expect(prompt).toContain("generate_fs_pack");
+  expect(prompt).toContain("reviews/FY");
+  expect(prompt).toContain("draft for CA review");
+  expect(prompt).toContain("</fs_review_workflow>");
+});
+
+test("includes GSTR review workflow guidance", () => {
+  const prompt = getSystemPrompt(empty);
+  expect(prompt).toContain("<gstr_review_workflow>");
+  expect(prompt).toContain("generate_gstr_pack");
+  expect(prompt).toContain("reviews/FY");
+  expect(prompt).toMatch(/not filed/i);
+  expect(prompt).toContain("</gstr_review_workflow>");
+});
+
+test("includes ITR review workflow guidance", () => {
+  const prompt = getSystemPrompt(empty);
+  expect(prompt).toContain("<itr_review_workflow>");
+  expect(prompt).toContain("generate_itr_pack");
+  expect(prompt).toContain("reviews/FY");
+  expect(prompt).toMatch(/not filed/i);
+  expect(prompt).toMatch(/manual portal/i);
+  expect(prompt).toContain("</itr_review_workflow>");
+});
+
+test("workspace documents reviews pack paths", () => {
+  const prompt = getSystemPrompt(empty);
+  expect(prompt).toContain("reviews/FYXXXX-YY/fs/");
+  expect(prompt).toContain("reviews/FYXXXX-YY/gstr/");
+  expect(prompt).toContain("reviews/FYXXXX-YY/itr/");
+});
+
 test("includes invariants section with hard rules", () => {
   const prompt = getSystemPrompt(empty);
   expect(prompt).toContain("<invariants>");

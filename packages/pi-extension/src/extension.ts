@@ -8,6 +8,9 @@ import {
   addTransactionsTool,
   commitAndPushTool,
   extractTextTool,
+  generateFsPackTool,
+  generateGstrPackTool,
+  generateItrPackTool,
   queryTool,
   updateMemoryTool,
   validateTool,
@@ -25,6 +28,9 @@ export function createClarusExtension(pi: ExtensionAPI): void {
   pi.registerTool(extractTextTool);
   pi.registerTool(validateTool);
   pi.registerTool(updateMemoryTool);
+  pi.registerTool(generateFsPackTool);
+  pi.registerTool(generateGstrPackTool);
+  pi.registerTool(generateItrPackTool);
 
   // Register custom slash commands
   accountsCommand(pi);

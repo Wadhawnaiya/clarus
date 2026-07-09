@@ -39,6 +39,12 @@ vi.mock("../analytics", () => ({
   trackUpdateFailed: h.trackUpdateFailed,
 }));
 
+// Pilot product gate: allow updater unit tests to exercise the packaged-stable
+// path without coupling to the default AUTO_UPDATE_ENABLED = false pilot flag.
+vi.mock("../product", () => ({
+  AUTO_UPDATE_ENABLED: true,
+}));
+
 import { initAutoUpdater, shouldAutoUpdate } from "../updater";
 
 const emit = (event: string, payload?: unknown) => h.handlers.get(event)?.(payload);
@@ -56,7 +62,7 @@ describe("shouldAutoUpdate()", () => {
     expect(shouldAutoUpdate(false, "0.3.0-rc.1")).toBe(false);
   });
 
-  it("should return true when packaged with a stable version", () => {
+  it("should return true when firm updates are enabled and packaged with a stable version", () => {
     expect(shouldAutoUpdate(true, "0.3.0")).toBe(true);
   });
 });

@@ -5,10 +5,12 @@
 // Targets:
 //   darwin (default on macOS) — Homebrew install + dylibbundler + ad-hoc codesign
 //   win32  (default on Windows, or VENDOR_TARGET=win32) — download pinned zips
+//   linux  (default on Linux, or VENDOR_TARGET=linux) — download hledger; PATH/host for PDF/OCR
 //
 // Usage:
 //   tsx scripts/vendor-bin.ts
 //   VENDOR_TARGET=win32 tsx scripts/vendor-bin.ts   # cross-prep Windows bins on Linux/mac
+//   VENDOR_TARGET=linux tsx scripts/vendor-bin.ts   # cross-prep Linux bins
 
 import { spawnSync } from "node:child_process";
 import {
@@ -27,6 +29,8 @@ import { pipeline } from "node:stream/promises";
 import { fileURLToPath } from "node:url";
 import {
   DARWIN_TOOLS,
+  LINUX_HLEDGER,
+  LINUX_TESSDATA_ENG,
   resolveVendorTarget,
   type VendorTarget,
   WIN_HLEDGER,
@@ -87,6 +91,11 @@ function unzip(zipPath: string, destDir: string): void {
   }
   // unzip is present on macOS/Linux CI images and most dev machines.
   run("unzip", ["-o", "-q", zipPath, "-d", destDir]);
+}
+
+function extractTarGz(tarPath: string, destDir: string): void {
+  mkdirSync(destDir, { recursive: true });
+  run("tar", ["-xzf", tarPath, "-C", destDir]);
 }
 
 /** Walk a directory tree; return absolute paths of files matching predicate. */
@@ -355,6 +364,95 @@ async function vendorWindows(): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
+// Linux (download hledger; optional host copy of pdftotext/tesseract)
+// ---------------------------------------------------------------------------
+
+function writeLinuxLicenses(extraNotes: string[]): void {
+  const lines: string[] = [
+    "Clarus — Third-Party Licenses",
+    "",
+    "This application bundles the command-line tools below for Linux. Their",
+    "licenses and corresponding source locations are listed for each entry.",
+    "",
+    "================================================================",
+    `hledger (${LINUX_HLEDGER.exe}) ${LINUX_HLEDGER.version} — ${LINUX_HLEDGER.license}`,
+    `Project: ${LINUX_HLEDGER.homepage}`,
+    `Corresponding source: ${LINUX_HLEDGER.source}`,
+    "----------------------------------------------------------------",
+    "Full license text: see the GPL-3.0 text in the hledger source repository.",
+    "",
+    "================================================================",
+    `tesseract eng.traineddata — ${LINUX_TESSDATA_ENG.license}`,
+    `Project: ${LINUX_TESSDATA_ENG.homepage}`,
+    `Corresponding source: ${LINUX_TESSDATA_ENG.source}`,
+    "----------------------------------------------------------------",
+    "OCR language data (eng). pdftotext and tesseract.exe-equivalent are",
+    "typically provided by the host (poppler-utils / tesseract-ocr packages).",
+    "",
+    ...extraNotes,
+  ];
+  writeFileSync(LICENSES, lines.join("\n"));
+  console.log(`[vendor-bin] wrote ${LICENSES}`);
+}
+
+async function vendorLinux(): Promise<void> {
+  mkdirSync(TESSDATA, { recursive: true });
+  mkdirSync(TMP, { recursive: true });
+  mkdirSync(BIN, { recursive: true });
+
+  // Clean previous Linux binaries (keep README.md).
+  for (const name of readdirSync(BIN)) {
+    if (name === "README.md") continue;
+    const p = join(BIN, name);
+    rmSync(p, { recursive: true, force: true });
+  }
+
+  // 1. hledger from official linux-x64 tarball
+  const hledgerTar = join(TMP, "hledger-linux-x64.tar.gz");
+  await download(LINUX_HLEDGER.url, hledgerTar);
+  const hledgerExtract = join(TMP, "hledger");
+  if (existsSync(hledgerExtract)) rmSync(hledgerExtract, { recursive: true, force: true });
+  extractTarGz(hledgerTar, hledgerExtract);
+  const hledgerSrc = walkFiles(hledgerExtract, (n) => n === "hledger")[0];
+  if (!hledgerSrc) throw new Error("hledger binary not found in downloaded tar.gz");
+  const hledgerDest = join(BIN, LINUX_HLEDGER.exe);
+  copyFileSync(hledgerSrc, hledgerDest);
+  run("chmod", ["+x", hledgerDest]);
+
+  // 2. eng.traineddata
+  await download(LINUX_TESSDATA_ENG.url, join(TESSDATA, LINUX_TESSDATA_ENG.file));
+
+  // 3. Best-effort: copy host pdftotext / tesseract when present (CI apt, etc.)
+  const notes: string[] = [];
+  for (const tool of ["pdftotext", "tesseract"] as const) {
+    try {
+      const which = capture("bash", ["-c", `command -v ${tool}`]);
+      if (which && existsSync(which)) {
+        // Copy the binary only; shared libs must exist on the host (typical for
+        // poppler-utils / tesseract packages). For AppImage/deb pilot this is fine
+        // when staff also install those packages — or we rely on PATH at runtime.
+        copyFileSync(which, join(BIN, tool));
+        run("chmod", ["+x", join(BIN, tool)]);
+        notes.push(`${tool} copied from host ${which} (host shared libraries still required)`);
+      } else {
+        notes.push(`${tool} not found on host — install poppler-utils / tesseract-ocr for PDF/OCR`);
+      }
+    } catch {
+      notes.push(`${tool} not found on host — install poppler-utils / tesseract-ocr for PDF/OCR`);
+    }
+  }
+
+  writeLinuxLicenses(notes.map((n) => `Note: ${n}`));
+  rmSync(TMP, { recursive: true, force: true });
+
+  const listed = readdirSync(BIN).filter((n) => n !== "README.md");
+  console.log(
+    `[vendor-bin] ✓ linux: ${listed.length} files in bin/; tessdata=${LINUX_TESSDATA_ENG.file}; ` +
+      `sample: ${listed.slice(0, 8).map((n) => relative(ROOT, join(BIN, n))).join(", ")}`,
+  );
+}
+
+// ---------------------------------------------------------------------------
 
 async function main(): Promise<void> {
   const target: VendorTarget = resolveVendorTarget();
@@ -364,6 +462,10 @@ async function main(): Promise<void> {
 
   if (target === "darwin") {
     vendorDarwin();
+    return;
+  }
+  if (target === "linux") {
+    await vendorLinux();
     return;
   }
   await vendorWindows();

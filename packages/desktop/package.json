@@ -2,6 +2,9 @@
   "name": "@clarus/desktop",
   "private": true,
   "version": "0.1.10",
+  "description": "Clarus — local-first AI desktop app for firm bookkeeping",
+  "author": "Clarus <noreply@clarus.local>",
+  "homepage": "https://github.com/Wadhawnaiya/clarus",
   "type": "module",
   "main": "out/main/index.js",
   "scripts": {

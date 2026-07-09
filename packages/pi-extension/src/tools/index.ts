@@ -1,6 +1,9 @@
 export { addTransactionsTool } from "./add-transactions";
 export { commitAndPushTool } from "./commit-and-push";
 export { extractTextTool } from "./extract-text";
+export { generateFsPackTool } from "./generate-fs-pack";
+export { generateGstrPackTool } from "./generate-gstr-pack";
+export { generateItrPackTool } from "./generate-itr-pack";
 export { queryTool } from "./query";
 export { updateMemoryTool } from "./update-memory";
 export { validateTool } from "./validate";

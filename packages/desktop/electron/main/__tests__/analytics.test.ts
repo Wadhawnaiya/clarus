@@ -38,6 +38,11 @@ vi.mock("electron", () => ({
   },
 }));
 vi.mock("../env", () => ({ appConfigDir: () => "/app-config" }));
+// Firm key is empty by default (pilot). Tests exercise the configured path.
+vi.mock("../product", () => ({
+  APTABASE_APP_KEY: "A-TEST-KEY",
+  isAnalyticsConfigured: () => true,
+}));
 
 const SETTINGS_PATH = "/app-config/app-settings.json";
 

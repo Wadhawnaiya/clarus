@@ -1,0 +1,72 @@
+# Build Linux pilot artifacts (AppImage + deb).
+# Dispatch-only by default; also runs on PRs that touch packaging / vendor paths.
+#
+# Produces under packages/desktop/release/:
+#   Clarus-*.AppImage
+#   Clarus-*.deb
+
+name: Linux build
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "packages/desktop/electron-builder.yml"
+      - "scripts/vendor-bin.ts"
+      - "scripts/vendor-bin-sources.ts"
+      - "packages/desktop/package.json"
+      - "package.json"
+      - ".github/workflows/linux-build.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: linux-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install system PDF/OCR tools (optional host copy during vendor)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends poppler-utils tesseract-ocr
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Vendor Linux CLI tools
+        run: npm run vendor:bin:linux
+
+      - name: Build renderer + main + extension
+        run: npm run build
+
+      - name: Package Linux
+        working-directory: packages/desktop
+        run: npx electron-builder --linux --x64 -c.extraMetadata.version=0.0.0-linux-ci
+
+      - name: List release artifacts
+        run: ls -la packages/desktop/release/
+
+      - name: Upload Linux installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: clarus-linux-x64
+          path: |
+            packages/desktop/release/*.AppImage
+            packages/desktop/release/*.deb
+          if-no-files-found: error
+          retention-days: 14

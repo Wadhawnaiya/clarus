@@ -50,6 +50,11 @@ describe("ensureScaffolded()", () => {
     expect(existsSync(join(BASE, "files"))).toBe(true);
   });
 
+  test("should create reviews directory for FS packs", async () => {
+    await ensureScaffolded();
+    expect(existsSync(join(BASE, "reviews"))).toBe(true);
+  });
+
   test("should write main.journal with header and include directives", async () => {
     await ensureScaffolded();
     const content = readFileSync(join(BASE, "ledger", "main.journal"), "utf-8");
@@ -58,10 +63,13 @@ describe("ensureScaffolded()", () => {
     expect(content).toContain("include accounts.journal");
   });
 
-  test("should create commodities.journal with header comment", async () => {
+  test("should create commodities.journal with INR default commodity", async () => {
     await ensureScaffolded();
     expect(existsSync(join(BASE, "ledger", "commodities.journal"))).toBe(true);
-    expect(readFileSync(join(BASE, "ledger", "commodities.journal"), "utf-8")).toContain("; Commodity declarations");
+    const content = readFileSync(join(BASE, "ledger", "commodities.journal"), "utf-8");
+    expect(content).toContain("; Commodity declarations");
+    expect(content).toContain("commodity 1,000.00 INR");
+    expect(content).toContain("D 1000.00 INR");
   });
 
   test("should not overwrite existing commodities.journal", async () => {
@@ -76,7 +84,7 @@ describe("ensureScaffolded()", () => {
   test("should write accounts.journal with semicolon comments", async () => {
     await ensureScaffolded();
     const content = readFileSync(join(BASE, "ledger", "accounts.journal"), "utf-8");
-    expect(content).toContain("; Default chart of accounts");
+    expect(content).toContain("; Clarus India firm chart of accounts");
     expect(content).not.toMatch(/^#/m);
   });
 
@@ -88,6 +96,25 @@ describe("ensureScaffolded()", () => {
     expect(content).toContain("account equity:");
     expect(content).toContain("account income:");
     expect(content).toContain("account expenses:");
+  });
+
+  test("should write India firm CoA with GST, capital, and drawings accounts", async () => {
+    await ensureScaffolded();
+    const content = readFileSync(join(BASE, "ledger", "accounts.journal"), "utf-8");
+    expect(content).toContain("account assets:gst:input-cgst");
+    expect(content).toContain("account assets:gst:input-sgst");
+    expect(content).toContain("account assets:gst:input-igst");
+    expect(content).toContain("account liabilities:gst:output-cgst");
+    expect(content).toContain("account liabilities:gst:output-sgst");
+    expect(content).toContain("account liabilities:gst:output-igst");
+    expect(content).toContain("account equity:capital");
+    expect(content).toContain("account equity:drawings");
+    expect(content).toContain("account income:sales:taxable");
+    expect(content).toContain("account expenses:purchases:taxable");
+    // Personal-finance scaffolding should no longer be the default
+    expect(content).not.toContain("account income:salary");
+    expect(content).not.toContain("account liabilities:mortgage");
+    expect(content).not.toContain("account expenses:pets:");
   });
 
   test("should write .gitignore with auth exclusion", async () => {

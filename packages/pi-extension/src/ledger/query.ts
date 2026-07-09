@@ -10,15 +10,44 @@ const PERIOD_FLAGS: Record<string, string> = {
   yearly: "--yearly",
 };
 
+/**
+ * Map friendly report names to the hledger subcommand.
+ * - tb  → bal  (trial balance is all-account balances)
+ * - cf  → cashflow
+ * Others pass through as-is.
+ */
+export function resolveHledgerReport(report: string): string {
+  if (report === "tb") return "bal";
+  if (report === "cf") return "cashflow";
+  return report;
+}
+
 // TUI box border (2) + padding (2) + content indent (2)
 const TUI_CHROME_WIDTH = 6;
+
+export interface QueryLedgerParams {
+  report: string;
+  account_pattern?: string;
+  description_pattern?: string;
+  payee_pattern?: string;
+  amount_filter?: string;
+  tag?: string;
+  status?: "cleared" | "pending" | "unmarked";
+  begin_date?: string;
+  end_date?: string;
+  period?: string;
+  depth?: number;
+  invert?: boolean;
+  output_format?: string;
+  file?: string;
+}
 
 export interface QueryLedgerResult {
   command: string;
   output: string;
 }
 
-export async function queryLedger(params: any, signal?: AbortSignal): Promise<QueryLedgerResult> {
+export async function queryLedger(params: QueryLedgerParams, signal?: AbortSignal): Promise<QueryLedgerResult> {
   const file = params.file ?? "ledger/main.journal";
   const resolved = resolveSafePath(file, CLARUS_HOME);
   const args = buildQueryArgs(params, resolved);
@@ -27,8 +56,17 @@ export async function queryLedger(params: any, signal?: AbortSignal): Promise<Qu
   return { command, output: raw || "(no results)" };
 }
 
-function buildQueryArgs(params: any, resolved: string): string[] {
-  const args = [params.report, "-f", resolved];
+/** Structured trial balance helper — always uses bal with consistent flags. */
+export async function queryTrialBalance(
+  params: Omit<QueryLedgerParams, "report"> = {},
+  signal?: AbortSignal,
+): Promise<QueryLedgerResult> {
+  return queryLedger({ ...params, report: "tb" }, signal);
+}
+
+export function buildQueryArgs(params: QueryLedgerParams, resolved: string): string[] {
+  const hledgerReport = resolveHledgerReport(params.report);
+  const args = [hledgerReport, "-f", resolved];
 
   if (params.account_pattern) args.push(params.account_pattern);
   if (params.description_pattern) args.push(`desc:${params.description_pattern}`);

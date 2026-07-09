@@ -140,10 +140,10 @@ Product spec: `docs/specs/clarus.md`
 
 **Acceptance:**
 
-- [ ] Given a seeded balanced journal, pack contains TB/P&L/BS/CF with numbers matching hledger
-- [ ] Pack is written into client folder, git-committable
-- [ ] Unit tests with hardcoded expected report snippets for fixture books
-- [ ] Agent can be asked “prepare FS review pack for FY 2025-26” and produce the pack
+- [x] Given a seeded balanced journal, pack contains TB/P&L/BS/CF with numbers matching hledger (unit: mocked hledger fixture totals)
+- [x] Pack is written into client folder, git-committable (`reviews/FY…/fs/`)
+- [x] Unit tests with hardcoded expected report snippets for fixture books
+- [x] Agent can be asked “prepare FS review pack for FY 2025-26” and produce the pack (`generate_fs_pack` tool + eval cases)
 
 **Risks:** Indian presentation (vertical BS, schedule mapping) differs from hledger defaults. v1 = correct numbers + clear labels; presentation polish iterative. Not Schedule III automation.
 
@@ -163,9 +163,9 @@ Product spec: `docs/specs/clarus.md`
 
 **Acceptance:**
 
-- [ ] Pack generated for fixture client with known GST figures
-- [ ] Explicit “not filed / draft for review” labeling
-- [ ] No portal credentials or automation code
+- [x] Pack generated for fixture client with known GST figures
+- [x] Explicit “not filed / draft for review” labeling
+- [x] No portal credentials or automation code
 
 ---
 
@@ -183,19 +183,19 @@ Product spec: `docs/specs/clarus.md`
 
 **Acceptance:**
 
-- [ ] Fixture client produces ITR review pack with sourced figures and gaps called out
-- [ ] Manual portal entry remains the filing path
-- [ ] Tests for computation helpers with hardcoded expected values
+- [x] Fixture client produces ITR review pack with sourced figures and gaps called out
+- [x] Manual portal entry remains the filing path
+- [x] Tests for computation helpers with hardcoded expected values
 
 ---
 
 ### Phase 7 — Firm pilot hardening (W7)
 
-- Pilot docs: Windows install, open client, FS/GSTR/ITR flows
-- Evals suite expansion
-- Analytics brand cleanup
-- Internal release checklist
-- Optional: auto-update feed for Windows
+- Pilot docs: Windows install, open client, FS/GSTR/ITR flows (`docs/pilot-install.md`)
+- Evals suite expansion (FS/GSTR/ITR + firm multi-pack / safety)
+- Analytics brand cleanup: empty Aptabase key until firm-owned; changelog + publish → Clarus repo
+- Silent auto-update gated by `AUTO_UPDATE_ENABLED` (false for unsigned pilot)
+- Internal release checklist (`tasks/release-checklist.md`) + staff UAT script (`tasks/uat-pilot.md`)
 
 **Checkpoint:** Pilot with real firm staff; collect UAT; backfill gaps.
 
@@ -223,10 +223,10 @@ Product spec: `docs/specs/clarus.md`
 
 1. Clarus **legal copyright owner** string?
 2. Windows alpha: **bundle tools** vs **PATH tools**? → **Decided 2026-07-09: bundle** hledger + poppler on Windows; tesseract best-effort / PATH fallback for OCR
-3. v1 **GSTR** forms set?
-4. v1 **ITR** forms set?
-5. v1 **entity types** for scaffold?
-6. **Distribution** channel for firm pilot?
+3. v1 **GSTR** forms set? → **Decided 2026-07-09 for Phase 5:** GSTR-1 + GSTR-3B style workpapers from books; GSTR-9 later
+4. v1 **ITR** forms set? → **Decided 2026-07-09 for Phase 6:** ITR-3 + ITR-4 style workpapers from books + doc intake; no e-filing / slab engine
+5. v1 **entity types** for scaffold? → **Decided 2026-07-09 for Phase 4:** sole proprietorship CoA default (capital + drawings + GST); partnership / company variants later
+6. **Distribution** channel for firm pilot? → **Partial 2026-07-09:** GitHub `Wadhawnaiya/clarus` for publish/changelog; Windows CI artifacts for unsigned pilot; auto-update off until firm enables + signs
 
 ## Definition of done (per task)
 
