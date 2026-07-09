@@ -3,7 +3,7 @@
 
 import { join } from "node:path";
 import { app, BrowserWindow, ipcMain, nativeImage } from "electron";
-import { killAgent, registerAgentIpc } from "./agent";
+import { killAgent, registerAgentIpc, restartAgent } from "./agent";
 import { initAnalytics, registerAnalyticsIpc, trackAnalyticsToggle, trackLaunch, trackQuit } from "./analytics";
 import { registerFilesIpc } from "./files";
 import { registerLedgerIpc } from "./ledger";
@@ -11,6 +11,7 @@ import { registerPiIpc } from "./pi";
 import { registerSettingsIpc } from "./settings";
 import { initAutoUpdater } from "./updater";
 import { createWindow } from "./window";
+import { applySavedWorkspace, registerWorkspaceIpc } from "./workspace";
 
 // Dev only: expose a local CDP endpoint so tooling (visual-measurement and
 // driver scripts) can attach to the RUNNING dev app instead of launching a
@@ -37,6 +38,9 @@ app.whenReady().then(() => {
     app.dock?.setBadge("dev");
   }
 
+  // Restore last client folder before any agent/ledger IPC uses workspaceDir().
+  applySavedWorkspace();
+
   // App-global IPC handlers (registered once); sends go to the current window.
   // Version comes from the packaged app metadata (CI injects the release
   // version via extraMetadata), so it can't be read at renderer build time.
@@ -44,6 +48,7 @@ app.whenReady().then(() => {
   registerAgentIpc(getWin);
   registerPiIpc(getWin);
   registerSettingsIpc({ onAnalyticsToggled: trackAnalyticsToggle });
+  registerWorkspaceIpc({ getWindow: getWin, restartAgent });
   registerFilesIpc();
   registerLedgerIpc();
   registerAnalyticsIpc();

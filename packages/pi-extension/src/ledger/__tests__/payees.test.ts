@@ -7,9 +7,9 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const BASE = mkdtempSync(join(tmpdir(), "accountant24-payees-"));
+const BASE = mkdtempSync(join(tmpdir(), "clarus-payees-"));
 vi.mock("../../config.js", () => ({
-  ACCOUNTANT24_HOME: BASE,
+  CLARUS_HOME: BASE,
   LEDGER_DIR: join(BASE, "ledger"),
   MEMORY_PATH: join(BASE, "memory.md"),
   FILES_DIR: join(BASE, "files"),

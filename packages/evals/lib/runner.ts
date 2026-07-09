@@ -5,7 +5,7 @@ import {
   setBaseDir,
   updateMemoryTool,
   validateTool,
-} from "@accountant24/pi-extension";
+} from "@clarus/pi-extension";
 import { Agent } from "@earendil-works/pi-agent-core";
 import { getModel, streamSimple } from "@earendil-works/pi-ai";
 import { createCodingTools } from "@earendil-works/pi-coding-agent";

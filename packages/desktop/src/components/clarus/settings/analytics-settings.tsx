@@ -38,7 +38,7 @@ export function AnalyticsSettings() {
           <ErrorBanner message={saveError} />
         </div>
       )}
-      <Section title="Analytics" description="Help improve Accountant24 by sharing anonymous analytics.">
+      <Section title="Analytics" description="Help improve Clarus by sharing anonymous analytics.">
         {/* The label must NOT wrap the Switch (a Radix Switch double-fires inside a
             wrapping label); point at it with htmlFor instead. */}
         <div className="flex items-center justify-between gap-3">

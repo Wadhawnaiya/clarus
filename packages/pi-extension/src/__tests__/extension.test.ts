@@ -4,13 +4,13 @@ import { join } from "node:path";
 import { afterAll, beforeEach, describe, expect, test, vi } from "vitest";
 import { setBaseDir } from "../config";
 
-const BASE = mkdtempSync(join(tmpdir(), "accountant24-ext-"));
+const BASE = mkdtempSync(join(tmpdir(), "clarus-ext-"));
 
 // No mock.module calls — use real modules to avoid mock leaks.
 // Extension tests work with real modules + temp filesystem via setBaseDir.
-const { createAccountantExtension } = await import("../extension.js");
+const { createClarusExtension } = await import("../extension.js");
 
-const accountant24Extension = createAccountantExtension;
+const clarusExtension = createClarusExtension;
 
 afterAll(() => rmSync(BASE, { recursive: true, force: true }));
 
@@ -35,16 +35,16 @@ function createMockPi() {
   };
 }
 
-describe("accountant24Extension()", () => {
+describe("clarusExtension()", () => {
   test("should register 6 custom tools (built-ins are pi's own)", () => {
     const pi = createMockPi();
-    accountant24Extension(pi as any);
+    clarusExtension(pi as any);
     expect(pi.registerTool).toHaveBeenCalledTimes(6);
   });
 
   test("should register session_start and before_agent_start handlers", () => {
     const pi = createMockPi();
-    accountant24Extension(pi as any);
+    clarusExtension(pi as any);
     expect(pi.on).toHaveBeenCalledTimes(2);
     expect(pi.handlers.session_start).toBeDefined();
     expect(pi.handlers.before_agent_start).toBeDefined();
@@ -54,7 +54,7 @@ describe("accountant24Extension()", () => {
 describe("ensureScaffolded (via session_start)", () => {
   test("should scaffold workspace on session_start", async () => {
     const pi = createMockPi();
-    accountant24Extension(pi as any);
+    clarusExtension(pi as any);
     await pi.handlers.session_start();
 
     expect(existsSync(join(BASE, "ledger"))).toBe(true);
@@ -80,7 +80,7 @@ describe("before_agent_start handler", () => {
 
   test("should return object with systemPrompt key", async () => {
     const pi = createMockPi();
-    accountant24Extension(pi as any);
+    clarusExtension(pi as any);
     await pi.handlers.session_start();
 
     const result = await pi.handlers.before_agent_start(beforeEvent);
@@ -91,7 +91,7 @@ describe("before_agent_start handler", () => {
 
   test("should forward pi's enabled-tool snippets into the tools section", async () => {
     const pi = createMockPi();
-    accountant24Extension(pi as any);
+    clarusExtension(pi as any);
     await pi.handlers.session_start();
 
     const result = await pi.handlers.before_agent_start(beforeEvent);
@@ -105,7 +105,7 @@ describe("before_agent_start handler", () => {
 
   test("should omit tools without a snippet", async () => {
     const pi = createMockPi();
-    accountant24Extension(pi as any);
+    clarusExtension(pi as any);
     await pi.handlers.session_start();
 
     const event = {
@@ -123,7 +123,7 @@ describe("before_agent_start handler", () => {
 
   test("should include context wrapper around dynamic sections", async () => {
     const pi = createMockPi();
-    accountant24Extension(pi as any);
+    clarusExtension(pi as any);
     await pi.handlers.session_start();
 
     const result = await pi.handlers.before_agent_start(beforeEvent);
@@ -138,7 +138,7 @@ describe("before_agent_start handler", () => {
 
   test("should include pi's tool guidelines", async () => {
     const pi = createMockPi();
-    accountant24Extension(pi as any);
+    clarusExtension(pi as any);
     await pi.handlers.session_start();
 
     const result = await pi.handlers.before_agent_start(beforeEvent);

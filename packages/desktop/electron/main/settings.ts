@@ -1,15 +1,20 @@
 // App settings — the app's OWN config, the single source of truth the Settings
-// UI reads/writes. Stored as ~/Accountant24/app-settings.json.
+// UI reads/writes. Stored as ~/Clarus/app-settings.json (appConfigDir), NOT
+// inside the active client folder — so model prefs, analytics opt-out, and the
+// recent-clients list survive switching workspaces.
 //
 // It must NOT share pi's settings.json: pi reads/writes its own settings.json in
-// the same workspace (PI_CODING_AGENT_DIR), so sharing the file mixed pi's keys
-// (e.g. defaultProvider) into ours and risked clobbering. We keep a separate file
-// and only ever persist our own keys.
+// PI_CODING_AGENT_DIR, so sharing the file mixed pi's keys (e.g. defaultProvider)
+// into ours and risked clobbering. We keep a separate file and only ever persist
+// our own keys.
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { ipcMain } from "electron";
-import { workspaceDir } from "./env";
+import { appConfigDir } from "./env";
+
+/** Max entries kept in the recent-clients list (most recent first). */
+export const MAX_RECENT_CLIENTS = 10;
 
 /** The app settings schema (app-owned keys, distinct from pi's). */
 export interface AppSettings {
@@ -23,15 +28,19 @@ export interface AppSettings {
    *  "user_first_message_sent"), so each is emitted at most once per install.
    *  Main-process only. */
   onceEvents?: string[];
+  /** Absolute path of the last opened client folder. */
+  lastClientPath?: string;
+  /** Recently opened client folder absolute paths, most recent first. */
+  recentClientPaths?: string[];
 }
 
 function appSettingsPath(): string {
-  return join(workspaceDir(), "app-settings.json");
+  return join(appConfigDir(), "app-settings.json");
 }
 
 /** pi's settings file, which earlier versions of the app shared. */
 function legacyPath(): string {
-  return join(workspaceDir(), "settings.json");
+  return join(appConfigDir(), "settings.json");
 }
 
 function parseFile(path: string): Record<string, unknown> | undefined {
@@ -61,6 +70,14 @@ function pickAppKeys(raw: Record<string, unknown>): AppSettings {
   if (Array.isArray(raw.onceEvents)) {
     out.onceEvents = (raw.onceEvents as unknown[]).filter((x): x is string => typeof x === "string");
   }
+  if (typeof raw.lastClientPath === "string" && raw.lastClientPath.length > 0) {
+    out.lastClientPath = raw.lastClientPath;
+  }
+  if (Array.isArray(raw.recentClientPaths)) {
+    out.recentClientPaths = (raw.recentClientPaths as unknown[]).filter(
+      (x): x is string => typeof x === "string" && x.length > 0,
+    );
+  }
   return out;
 }
 
@@ -71,7 +88,7 @@ function migrateFromLegacy(): AppSettings {
   if (!legacy) return {};
   const app = pickAppKeys(legacy);
   try {
-    mkdirSync(workspaceDir(), { recursive: true });
+    mkdirSync(appConfigDir(), { recursive: true });
     writeFileSync(appSettingsPath(), `${JSON.stringify(app, null, 2)}\n`);
     // Strip our keys from pi's file so it's no longer a mix of both.
     const cleaned = { ...legacy };
@@ -93,11 +110,22 @@ function readSettings(): AppSettings {
 /** Merge-patch the settings file and return the merged result. */
 function writeSettings(patch: Partial<AppSettings>): AppSettings {
   const merged: AppSettings = { ...readSettings(), ...patch };
-  // The workspace normally exists (the agent scaffolds it), but a save can race
-  // a fresh install — create it so the write can't fail with ENOENT.
-  mkdirSync(workspaceDir(), { recursive: true });
+  // The app config dir may not exist on a fresh install — create it so the write
+  // can't fail with ENOENT.
+  mkdirSync(appConfigDir(), { recursive: true });
   writeFileSync(appSettingsPath(), `${JSON.stringify(merged, null, 2)}\n`);
   return merged;
+}
+
+/** Record that a client folder was opened: update last + recents (deduped, capped). */
+export function recordClientOpened(dir: string): AppSettings {
+  const normalized = resolve(dir);
+  const prev = readSettings();
+  const rest = (prev.recentClientPaths ?? []).filter((p) => p !== normalized);
+  return writeSettings({
+    lastClientPath: normalized,
+    recentClientPaths: [normalized, ...rest].slice(0, MAX_RECENT_CLIENTS),
+  });
 }
 
 /** Register settings IPC handlers.
@@ -127,4 +155,9 @@ export function consumeOnce(key: string): boolean {
   if (done.includes(key)) return false;
   writeSettings({ onceEvents: [...done, key] });
   return true;
+}
+
+/** Read settings without going through IPC (main-process callers). */
+export function getSettings(): AppSettings {
+  return readSettings();
 }

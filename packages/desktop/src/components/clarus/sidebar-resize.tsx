@@ -14,7 +14,7 @@ export const SIDEBAR_MAX_WIDTH = 480;
 /** Matches the stock shadcn SIDEBAR_WIDTH (16rem). */
 export const SIDEBAR_DEFAULT_WIDTH = 256;
 const KEYBOARD_STEP = 16;
-const STORAGE_KEY = "accountant24.sidebar-width";
+const STORAGE_KEY = "clarus.sidebar-width";
 
 export const clampSidebarWidth = (width: number): number =>
   Math.min(SIDEBAR_MAX_WIDTH, Math.max(SIDEBAR_MIN_WIDTH, Math.round(width)));

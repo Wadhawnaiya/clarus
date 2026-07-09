@@ -11,13 +11,13 @@ import {
 } from "@assistant-ui/react";
 import { ArrowDownIcon } from "lucide-react";
 import { type ComponentType, createContext, type FC, useContext } from "react";
-import { UserMessageImage, UserMessageText } from "@/components/accountant24/attachment";
-import { ChainOfThoughtRoot, ChainOfThoughtStep } from "@/components/accountant24/chain-of-thought";
-import { Composer, EditComposer, isNewChatView } from "@/components/accountant24/composer";
-import { MarkdownText } from "@/components/accountant24/markdown-text";
-import { Reasoning } from "@/components/accountant24/reasoning";
-import { ToolFallback } from "@/components/accountant24/tool-fallback";
-import { TooltipIconButton } from "@/components/accountant24/tooltip-icon-button";
+import { UserMessageImage, UserMessageText } from "@/components/clarus/attachment";
+import { ChainOfThoughtRoot, ChainOfThoughtStep } from "@/components/clarus/chain-of-thought";
+import { Composer, EditComposer, isNewChatView } from "@/components/clarus/composer";
+import { MarkdownText } from "@/components/clarus/markdown-text";
+import { Reasoning } from "@/components/clarus/reasoning";
+import { ToolFallback } from "@/components/clarus/tool-fallback";
+import { TooltipIconButton } from "@/components/clarus/tooltip-icon-button";
 import { cn } from "@/lib/utils";
 
 /**

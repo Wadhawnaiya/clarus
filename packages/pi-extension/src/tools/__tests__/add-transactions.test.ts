@@ -7,11 +7,11 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const BASE = mkdtempSync(join(tmpdir(), "accountant24-add-tx-"));
+const BASE = mkdtempSync(join(tmpdir(), "clarus-add-tx-"));
 const LEDGER = join(BASE, "ledger");
 
 vi.mock("../../config.js", () => ({
-  ACCOUNTANT24_HOME: BASE,
+  CLARUS_HOME: BASE,
   LEDGER_DIR: LEDGER,
   MEMORY_PATH: join(BASE, "memory.md"),
   FILES_DIR: join(BASE, "files"),
@@ -111,7 +111,7 @@ test("appends to existing monthly file", async () => {
 });
 
 test("adds include directive for new monthly files", async () => {
-  writeFileSync(join(LEDGER, "main.journal"), "; Accountant24 Personal Finances\n");
+  writeFileSync(join(LEDGER, "main.journal"), "; Clarus\n");
   await run({ transactions: [basicTx] });
   const main = readFileSync(join(LEDGER, "main.journal"), "utf-8");
   expect(main).toContain("include 2026/03.journal");

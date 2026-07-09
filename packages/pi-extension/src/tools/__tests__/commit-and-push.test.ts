@@ -4,10 +4,10 @@ import { join } from "node:path";
 import { afterAll, beforeEach, describe, expect, test, vi } from "vitest";
 import { spawnText } from "../../spawn";
 
-const BASE = mkdtempSync(join(tmpdir(), "accountant24-commit-tool-"));
+const BASE = mkdtempSync(join(tmpdir(), "clarus-commit-tool-"));
 
 vi.mock("../../config.js", () => ({
-  ACCOUNTANT24_HOME: BASE,
+  CLARUS_HOME: BASE,
   MEMORY_PATH: join(BASE, "memory.md"),
   LEDGER_DIR: join(BASE, "ledger"),
   FILES_DIR: join(BASE, "files"),
@@ -65,7 +65,7 @@ describe("commit_and_push tool", () => {
   });
 
   test("should report pushed=true when remote exists", async () => {
-    const bareDir = mkdtempSync(join(tmpdir(), "accountant24-bare-"));
+    const bareDir = mkdtempSync(join(tmpdir(), "clarus-bare-"));
     await spawnText(["git", "init", "--bare"], { cwd: bareDir });
     await gitRun(["remote", "add", "origin", bareDir]);
 

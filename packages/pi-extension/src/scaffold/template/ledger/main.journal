@@ -1,4 +1,4 @@
-; Accountant24
+; Clarus
 
 include commodities.journal
 include accounts.journal

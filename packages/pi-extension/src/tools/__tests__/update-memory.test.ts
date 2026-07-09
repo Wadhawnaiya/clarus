@@ -3,11 +3,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeEach, expect, test, vi } from "vitest";
 
-const BASE = mkdtempSync(join(tmpdir(), "accountant24-update-memory-"));
+const BASE = mkdtempSync(join(tmpdir(), "clarus-update-memory-"));
 const MEMORY = join(BASE, "memory.md");
 
 vi.mock("../../config.js", () => ({
-  ACCOUNTANT24_HOME: BASE,
+  CLARUS_HOME: BASE,
   MEMORY_PATH: MEMORY,
   LEDGER_DIR: join(BASE, "ledger"),
 }));

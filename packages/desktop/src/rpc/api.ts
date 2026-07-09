@@ -15,6 +15,7 @@ import type {
   LedgerMentions,
   OllamaInfo,
   SessionSummary,
+  WorkspaceInfo,
 } from "./types";
 
 const api = window.api;
@@ -82,7 +83,7 @@ export const filesApi = {
 const SETTINGS_CHANGED = "a24:settings-changed";
 
 export const settingsApi = {
-  /** Read the app's own settings (~/Accountant24/settings.json). */
+  /** Read the app's own settings (~/Clarus/app-settings.json). */
   get: () => api.invoke<AppSettings>("settings_get"),
   /** Merge-patch the app settings; resolves with the merged result. */
   async set(patch: Partial<AppSettings>): Promise<AppSettings> {
@@ -94,6 +95,31 @@ export const settingsApi = {
   onChange(cb: () => void): () => void {
     window.addEventListener(SETTINGS_CHANGED, cb);
     return () => window.removeEventListener(SETTINGS_CHANGED, cb);
+  },
+};
+
+/** Fired after the active client folder changes so chat UI can reset thread state. */
+const WORKSPACE_CHANGED = "a24:workspace-changed";
+
+export const workspaceApi = {
+  /** Absolute path of the active client folder. */
+  get: () => api.invoke<WorkspaceInfo>("workspace_get"),
+  /** Native folder picker; null if the user cancelled. */
+  async open(): Promise<WorkspaceInfo | null> {
+    const result = await api.invoke<WorkspaceInfo | null>("workspace_open");
+    if (result) window.dispatchEvent(new CustomEvent(WORKSPACE_CHANGED, { detail: result }));
+    return result;
+  },
+  /** Open a known path (e.g. from Recents). */
+  async openPath(path: string): Promise<WorkspaceInfo> {
+    const result = await api.invoke<WorkspaceInfo>("workspace_open_path", path);
+    window.dispatchEvent(new CustomEvent(WORKSPACE_CHANGED, { detail: result }));
+    return result;
+  },
+  onChange(cb: (info: WorkspaceInfo) => void): () => void {
+    const handler = (e: Event) => cb((e as CustomEvent<WorkspaceInfo>).detail);
+    window.addEventListener(WORKSPACE_CHANGED, handler);
+    return () => window.removeEventListener(WORKSPACE_CHANGED, handler);
   },
 };
 

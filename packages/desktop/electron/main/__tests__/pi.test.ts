@@ -43,7 +43,7 @@ vi.mock("electron", () => ({
   },
   shell: { openExternal: h.openExternal },
 }));
-vi.mock("../env", () => ({ workspaceDir: () => "/ws" }));
+vi.mock("../env", () => ({ workspaceDir: () => "/ws", appConfigDir: () => "/app-config" }));
 vi.mock("../analytics", () => ({ trackProviderConnected: h.trackProviderConnected }));
 vi.mock("@earendil-works/pi-coding-agent", () => ({
   AuthStorage: { create: () => h.authStorage },
@@ -305,7 +305,7 @@ describe("auth_add_ollama", () => {
       count: 1,
     });
 
-    expect(h.fs.writeFileSync.mock.calls[0][0]).toBe("/ws/models.json");
+    expect(h.fs.writeFileSync.mock.calls[0][0]).toBe("/app-config/models.json");
     expect(writtenJson()).toEqual({
       providers: {
         ollama: {
@@ -541,7 +541,7 @@ describe("sessions_list", () => {
         },
       ],
     });
-    expect(h.sessionList).toHaveBeenCalledWith("/ws", "/ws/sessions");
+    expect(h.sessionList).toHaveBeenCalledWith("/app-config", "/ws/sessions");
   });
 
   it("should stringify a non-Date modified value", async () => {

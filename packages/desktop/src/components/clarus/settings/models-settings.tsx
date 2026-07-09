@@ -3,7 +3,7 @@
 // /scoped-models, driven entirely through the app.
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { type ModelOption, ModelSelector } from "@/components/accountant24/model-selector";
+import { type ModelOption, ModelSelector } from "@/components/clarus/model-selector";
 import { Switch } from "@/components/shadcn/switch";
 import { addEnabledModels } from "@/lib/enabledModels";
 import { authApi, settingsApi } from "@/rpc/api";

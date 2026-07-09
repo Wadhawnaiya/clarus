@@ -1,43 +1,44 @@
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
-import { ACCOUNTANT24_HOME, LEDGER_DIR, MEMORY_PATH, setBaseDir } from "../config";
+import { CLARUS_HOME, LEDGER_DIR, MEMORY_PATH, setBaseDir } from "../config";
+import { DEFAULT_WORKSPACE_DIR_NAME } from "../product";
 
-const originalHome = join(homedir(), "Accountant24");
+const originalHome = join(homedir(), DEFAULT_WORKSPACE_DIR_NAME);
 
 afterEach(() => {
   setBaseDir(originalHome);
 });
 
-describe("config defaults", () => {
-  test("should set ACCOUNTANT24_HOME to ~/Accountant24", () => {
+describe("default paths", () => {
+  test("should set CLARUS_HOME to ~/Clarus", () => {
     setBaseDir(originalHome);
-    expect(ACCOUNTANT24_HOME).toBe(join(homedir(), "Accountant24"));
+    expect(CLARUS_HOME).toBe(join(homedir(), "Clarus"));
   });
 
-  test("should set MEMORY_PATH to ~/Accountant24/memory.md", () => {
+  test("should set MEMORY_PATH to ~/Clarus/memory.md", () => {
     setBaseDir(originalHome);
-    expect(MEMORY_PATH).toBe(join(homedir(), "Accountant24", "memory.md"));
+    expect(MEMORY_PATH).toBe(join(homedir(), "Clarus", "memory.md"));
   });
 
-  test("should set LEDGER_DIR to ~/Accountant24/ledger", () => {
+  test("should set LEDGER_DIR to ~/Clarus/ledger", () => {
     setBaseDir(originalHome);
-    expect(LEDGER_DIR).toBe(join(homedir(), "Accountant24", "ledger"));
+    expect(LEDGER_DIR).toBe(join(homedir(), "Clarus", "ledger"));
   });
 });
 
 describe("setBaseDir()", () => {
-  test("should update ACCOUNTANT24_HOME to given dir", () => {
+  test("should update CLARUS_HOME to given dir", () => {
     setBaseDir("/tmp/test-dir");
-    expect(ACCOUNTANT24_HOME).toBe("/tmp/test-dir");
+    expect(CLARUS_HOME).toBe("/tmp/test-dir");
   });
 
-  test("should update MEMORY_PATH to dir/memory.md", () => {
+  test("should update MEMORY_PATH relative to given dir", () => {
     setBaseDir("/tmp/test-dir");
     expect(MEMORY_PATH).toBe("/tmp/test-dir/memory.md");
   });
 
-  test("should update LEDGER_DIR to dir/ledger", () => {
+  test("should update LEDGER_DIR relative to given dir", () => {
     setBaseDir("/tmp/test-dir");
     expect(LEDGER_DIR).toBe("/tmp/test-dir/ledger");
   });

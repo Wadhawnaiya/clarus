@@ -1,8 +1,8 @@
 {
-  "name": "@accountant24/pi-extension",
+  "name": "@clarus/pi-extension",
   "version": "0.1.9",
   "type": "module",
-  "description": "Accountant24 customization for pi: ledger tools, commands, system prompt, scaffolding.",
+  "description": "Clarus customization for pi: ledger tools, commands, system prompt, scaffolding.",
   "keywords": [
     "pi-package"
   ],

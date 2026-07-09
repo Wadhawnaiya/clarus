@@ -124,7 +124,7 @@ test("populated context includes tags", () => {
 test("includes soul section", () => {
   const prompt = getSystemPrompt(empty);
   expect(prompt).toContain("<soul>");
-  expect(prompt).toContain("Accountant24");
+  expect(prompt).toContain("Clarus");
   expect(prompt).toContain("</soul>");
 });
 

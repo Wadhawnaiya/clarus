@@ -16,7 +16,7 @@ import {
 // The desktop app renders all UI from the RPC event stream, so this extension
 // registers only domain behavior — tools, commands, scaffolding, and the system
 // prompt. No pi TUI customization (headers, footer, editor, autocomplete, etc.).
-export function createAccountantExtension(pi: ExtensionAPI): void {
+export function createClarusExtension(pi: ExtensionAPI): void {
   // Register custom tools (pi registers its own built-in tools, bound to the agent
   // cwd, which the app sets to the workspace).
   pi.registerTool(queryTool);

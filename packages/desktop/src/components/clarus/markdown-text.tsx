@@ -12,8 +12,8 @@ import { CheckIcon, CopyIcon } from "lucide-react";
 import { type FC, memo, useState } from "react";
 import remarkGfm from "remark-gfm";
 
-import { MentionPill } from "@/components/accountant24/mentions";
-import { TooltipIconButton } from "@/components/accountant24/tooltip-icon-button";
+import { MentionPill } from "@/components/clarus/mentions";
+import { TooltipIconButton } from "@/components/clarus/tooltip-icon-button";
 import { remarkMentions } from "@/lib/remark-mentions";
 import { cn } from "@/lib/utils";
 

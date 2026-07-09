@@ -80,17 +80,17 @@ describe("loadSidebarWidth()", () => {
   });
 
   it("should return the stored width when it is within limits", () => {
-    window.localStorage.setItem("accountant24.sidebar-width", "333");
+    window.localStorage.setItem("clarus.sidebar-width", "333");
     expect(loadSidebarWidth()).toBe(333);
   });
 
   it("should clamp an out-of-range stored width", () => {
-    window.localStorage.setItem("accountant24.sidebar-width", "9999");
+    window.localStorage.setItem("clarus.sidebar-width", "9999");
     expect(loadSidebarWidth()).toBe(480);
   });
 
   it("should fall back to the default when the stored value is garbage", () => {
-    window.localStorage.setItem("accountant24.sidebar-width", "not-a-number");
+    window.localStorage.setItem("clarus.sidebar-width", "not-a-number");
     expect(loadSidebarWidth()).toBe(256);
   });
 });
@@ -140,7 +140,7 @@ describe("<SidebarResizeHandle />", () => {
     fireEvent.pointerDown(handle, { clientX: 256, pointerId: 1 });
     fireEvent.pointerMove(handle, { clientX: 300, pointerId: 1 });
     fireEvent.pointerUp(handle, { clientX: 300, pointerId: 1 });
-    expect(window.localStorage.getItem("accountant24.sidebar-width")).toBe("300");
+    expect(window.localStorage.getItem("clarus.sidebar-width")).toBe("300");
   });
 
   it("should suspend width transitions only while dragging", () => {
@@ -177,7 +177,7 @@ describe("<SidebarResizeHandle />", () => {
     fireEvent.pointerUp(handle, { clientX: 400, pointerId: 1 });
     fireEvent.doubleClick(getHandle());
     expect(widthVar(wrapper)).toBe(`${SIDEBAR_DEFAULT_WIDTH}px`);
-    expect(window.localStorage.getItem("accountant24.sidebar-width")).toBe("256");
+    expect(window.localStorage.getItem("clarus.sidebar-width")).toBe("256");
   });
 
   it("should not render a handle when the sidebar is collapsed", () => {

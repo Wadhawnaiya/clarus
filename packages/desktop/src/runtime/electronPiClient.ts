@@ -1,7 +1,7 @@
 // A `PiClient` (from @assistant-ui/react-pi) implemented over the pi `--mode rpc`
 // child process (spawned by the Electron main process, bridged via IPC) — so the
 // official `usePiRuntime` drives all message projection / streaming / tool /
-// thread-list rendering, while pi keeps running our `accountant24-extension.js`.
+// thread-list rendering, while pi keeps running our `clarus-extension.js`.
 // This is the transport the package leaves open (HTTP/SSE is just one
 // implementation); we mirror `client/httpClient.ts` against the sidecar.
 //

@@ -1,8 +1,13 @@
 // Resource paths + the environment passed to the pi agent child.
 //
-// Mirrors the old src-tauri/src/env.rs contract: the workspace (~/Accountant24)
-// holds the ledger + auth.json + models.json; PATH exposes the vendored native
-// tools (hledger/pdftotext/tesseract); TESSDATA_PREFIX points at the OCR data.
+// Two roots matter:
+//   appConfigDir()  — stable ~/Clarus for app-settings, auth.json, models.json
+//   workspaceDir()  — active client folder (ledger, files, sessions, memory)
+//
+// CLARUS_HOME (and legacy ACCOUNTANT24_HOME) still override the default client
+// root when no folder has been opened this session / restored from settings.
+// PATH exposes the vendored native tools (hledger/pdftotext/tesseract);
+// TESSDATA_PREFIX points at the OCR data.
 // pi runs from node_modules, so PI_PACKAGE_DIR is no longer needed (its assets
 // sit beside it) — add it back here only if a future pi version requires it.
 
@@ -11,11 +16,34 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { app } from "electron";
+import { DEFAULT_WORKSPACE_DIR_NAME, EXTENSION_BUNDLE_NAME, HOME_ENV, LEGACY_HOME_ENV } from "./product";
 
-/** ~/Accountant24 — the agent's cwd and the home of the ledger/auth/models. */
+/** Resolve default client root from env (CLARUS_HOME preferred, legacy fallback). */
+function resolveHomeFromEnv(): string {
+  const preferred = process.env[HOME_ENV];
+  if (preferred && preferred.length > 0) return preferred;
+  const legacy = process.env[LEGACY_HOME_ENV];
+  if (legacy && legacy.length > 0) return legacy;
+  return path.join(homedir(), DEFAULT_WORKSPACE_DIR_NAME);
+}
+
+/** Stable app home: settings, provider auth, and models — not the active client. */
+export function appConfigDir(): string {
+  return path.join(homedir(), DEFAULT_WORKSPACE_DIR_NAME);
+}
+
+/** In-memory override for the active client folder (set on open / restore). */
+let activeWorkspace: string | undefined;
+
+/** Set or clear the active client workspace (absolute path). */
+export function setActiveWorkspace(dir: string | undefined): void {
+  activeWorkspace = dir ? path.resolve(dir) : undefined;
+}
+
+/** Active client folder: open-folder override, else env, else ~/Clarus. */
 export function workspaceDir(): string {
-  const env = process.env.ACCOUNTANT24_HOME;
-  return env && env.length > 0 ? env : path.join(homedir(), "Accountant24");
+  if (activeWorkspace) return activeWorkspace;
+  return resolveHomeFromEnv();
 }
 
 /** Dir holding vendored bin/ + tessdata/ + the extension bundle.
@@ -44,7 +72,7 @@ export function binDir(): string {
  *  packaged (Electron-as-Node can't parse the TS source); produced by
  *  scripts/bundle-extension.ts. */
 export function extensionPath(): string {
-  return path.join(resourceDir(), "accountant24-extension.js");
+  return path.join(resourceDir(), EXTENSION_BUNDLE_NAME);
 }
 
 /** Binary for running pi as Node (ELECTRON_RUN_AS_NODE). On macOS, use the
@@ -71,13 +99,14 @@ export function nodeRuntimePath(): string {
   return existsSync(helper) ? helper : process.execPath;
 }
 
-/** Env overrides for the pi child + in-process SDK: workspace + vendored tools. */
+/** Env overrides for the pi child + in-process SDK: client workspace + app config + tools. */
 export function agentEnv(): NodeJS.ProcessEnv {
   const workspace = workspaceDir();
   const env: NodeJS.ProcessEnv = {
     ...process.env,
-    ACCOUNTANT24_HOME: workspace,
-    PI_CODING_AGENT_DIR: workspace,
+    [HOME_ENV]: workspace,
+    // Auth/models stay in the app home so provider login survives client switches.
+    PI_CODING_AGENT_DIR: appConfigDir(),
   };
   const res = resourceDir();
   const bin = binDir();

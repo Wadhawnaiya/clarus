@@ -7,11 +7,11 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const BASE = mkdtempSync(join(tmpdir(), "accountant24-transactions-"));
+const BASE = mkdtempSync(join(tmpdir(), "clarus-transactions-"));
 const LEDGER = join(BASE, "ledger");
 
 vi.mock("../../config.js", () => ({
-  ACCOUNTANT24_HOME: BASE,
+  CLARUS_HOME: BASE,
   LEDGER_DIR: LEDGER,
   MEMORY_PATH: join(BASE, "memory.md"),
   FILES_DIR: join(BASE, "files"),
@@ -386,7 +386,7 @@ describe("addTransaction() file routing", () => {
 
 describe("addTransaction() main.journal management", () => {
   test("should add include directive for new monthly file", async () => {
-    writeFileSync(join(LEDGER, "main.journal"), "; Accountant24\n");
+    writeFileSync(join(LEDGER, "main.journal"), "; Clarus\n");
     await addTransaction(basicParams);
     const main = readFileSync(join(LEDGER, "main.journal"), "utf-8");
     expect(main).toContain("include 2026/03.journal");
@@ -443,14 +443,14 @@ describe("addTransaction() main.journal management", () => {
   });
 
   test("should add include commodities.journal to main.journal if missing", async () => {
-    writeFileSync(join(LEDGER, "main.journal"), "; Accountant24\n");
+    writeFileSync(join(LEDGER, "main.journal"), "; Clarus\n");
     await addTransaction(basicParams);
     const main = readFileSync(join(LEDGER, "main.journal"), "utf-8");
     expect(main).toContain("include commodities.journal");
   });
 
   test("should not duplicate include commodities.journal when already present", async () => {
-    writeFileSync(join(LEDGER, "main.journal"), "include commodities.journal\n; Accountant24\n");
+    writeFileSync(join(LEDGER, "main.journal"), "include commodities.journal\n; Clarus\n");
     await addTransaction(basicParams);
     const main = readFileSync(join(LEDGER, "main.journal"), "utf-8");
     const matches = main.match(/include commodities\.journal/g);

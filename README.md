@@ -1,126 +1,76 @@
-# Accountant24 - Local-first AI agent for personal finance
+# Clarus — Local-first AI for firm bookkeeping
 
-Track spending in plain language, import bank statements and receipts, ask questions about your money. Your data stays as plain text files on your machine. Works with any LLM, including local ones. All changes are versioned with git.
+Prepare client books, import statements and accounting documents, and produce review-ready workpapers. Your data stays as plain text files on your machine. Works with any LLM, including local ones. All changes are versioned with git.
 
-![Accountant24 — desktop app](docs/images/desktop-app-2.png)
+![Clarus — desktop app](docs/images/desktop-app-2.png)
 
-<p align="center">
-  <a href="https://github.com/machulav/accountant24/releases/latest/download/Accountant24.dmg"><b>Download for macOS</b></a> (Apple Silicon)
-</p>
+> **Origin:** Clarus is a product fork of [Accountant24](https://github.com/machulav/accountant24) (MIT). Upstream copyright is retained in `LICENSE` and `NOTICE`.
 
 ## What you can do
 
-### Log spending in natural language
+### Log transactions in natural language
 
-> I spent $45 at Whole Foods yesterday
+> I spent ₹4,500 at stationery shop yesterday
 
-The agent figures out the details and adds it to your ledger as a proper double-entry transaction.
+The agent figures out the details and adds it to the client ledger as a proper double-entry transaction.
 
 ### Import bank statements and receipts
 
 > Here is my March bank statement, please add missing transactions: ~/Downloads/statement-march.pdf
 
-> Add transaction from this receipt: ~/Desktop/receipt.jpg
+Drop a PDF bank statement, an invoice, or a photo of a paper receipt into the chat. The agent extracts the text, pulls out every transaction, and adds them to the ledger. The original file is archived in the client workspace.
 
-Drop a PDF bank statement, an invoice, or a photo of a paper receipt into the chat. The agent extracts the text, pulls out every transaction, and adds them to your ledger. The original file is archived in your workspace so you can refer back to it later.
+### Ask questions about the books
 
-### Ask questions about your money
+> How much did we spend on professional fees this month?
 
-> How much did I spend on food this month?
+> Show trial balance for this year
 
-> What's my net worth?
-
-> Show me all transactions from my last trip to Italy
-
-The agent checks your ledger and gives you a clear answer. Type `@` to point it at a specific account, payee, or tag.
+The agent checks the ledger and gives a clear answer. Type `@` to point it at a specific account, payee, or tag.
 
 ### Teach the agent as you go
 
-> I'm visiting Italy from April 10th to 15th.
-> Tag all transactions during this period with the 'trip_italy' tag.
-
-> My food budget is $600/month, please notify me when I get close.
+> Tag all GST input invoices with the `gst_itc` tag.
 
 Tell the agent once — it remembers and applies it when it matters.
 
 ### Track every change with git
 
-Every modification is auto-committed to a local git repo. Review your history anytime, roll back mistakes, or push to a private repo for backup.
+Every modification is auto-committed to a local git repo. Review history anytime, roll back mistakes, or push to a private remote for backup.
 
 ## Quick start
 
-1. Download [Accountant24](https://github.com/machulav/accountant24/releases/latest/download/Accountant24.dmg) for Apple Silicon Macs and install it.
-2. Launch Accountant24.
+1. Install dependencies: `npm install`
+2. Start the desktop app: `npm start`
 3. Connect your LLM provider.
-4. Pick your favorite model and start chatting.
+4. Pick a model and start chatting (default workspace: `~/Clarus`).
 
 ## Go fully local
 
-Want your financial data to never leave your machine? Run a local model with Ollama.
+Want client financial data to never leave the machine? Run a local model with Ollama.
 
 1. [Download and install Ollama](https://ollama.com/download).
-2. Pull a Gemma 4 or any other model:
+2. Pull a capable model, e.g.:
 
    ```bash
    ollama pull gemma4:31b  # requires ~24 GB+ RAM
    ```
 
-3. In Settings → Providers, connect Ollama. The app detects all your local Ollama models and configures them automatically.
-4. Pick your Gemma 4 model and start chatting.
-
-## How it compares
-
-|                 | Accountant24               | YNAB / Monarch     | Actual Budget      | hledger CLI              |
-| --------------- | -------------------------- | ------------------ | ------------------ | ------------------------ |
-| Data format     | Plain text (hledger)       | Proprietary cloud  | SQLite             | Plain text (hledger)     |
-| Data location   | Your machine               | Their servers      | Your machine       | Your machine             |
-| Input method    | Natural language           | Manual entry       | Manual entry       | Manual entry             |
-| AI              | Built-in, learns over time | —                  | —                  | —                        |
-| Memory          | Persistent                 | —                  | —                  | —                        |
-| Version control | Git, built-in              | —                  | —                  | Via manual setup         |
-| Accounting      | Double-entry bookkeeping   | Envelope budgeting | Envelope budgeting | Double-entry bookkeeping |
-| Bank sync       | —                          | Yes                | Yes (via add-ons)  | —                        |
-| Interface       | Desktop app                | Web + mobile       | Web + desktop      | CLI                      |
-| Price           | Free                       | $100–$180/yr       | Free               | Free                     |
-| Lock-in         | None (plain text)          | High               | Medium             | None (plain text)        |
-
-## Why I built this
-
-For years, I managed my personal finances with YNAB. It worked — but every transaction was a manual chore. I'd fall behind, dread catching up, and put it off for weeks at a time.
-
-One weekend I started playing with hledger and Claude Code, just to see if an agent could handle the bookkeeping for me. I wrote a couple of small skills, and to my surprise, it actually worked — and it was genuinely fun to use.
-
-So I kept going. I packed everything into a standalone agent, tuned it for this one job, and started using it every day. I'm honestly happier with it than any tool I've used for my money before.
-
-If it works this well for me, maybe it'll work for you too. That's why I'm releasing it as an open source project.
+3. In Settings → Providers, connect Ollama.
+4. Pick the local model and start chatting.
 
 ## Why this stack
 
-Each piece of this puzzle does one thing really well.
-
-**hledger** is a mature accounting engine with proper double-entry bookkeeping. It's fast, reliable, and stores everything in plain text files you fully own. The catch: it has a steep learning curve — journal syntax, report commands, filter expressions. Not something most people want to deal with.
-
-**LLMs** are great at understanding what you mean in plain language. But they hallucinate numbers and can't do accounting on their own. Left alone with a ledger, they'd quietly corrupt your books.
-
-**pi** is the agent framework that glues everything together — sessions, tool execution, LLM communication. It's small, well-designed, and easy to extend.
-
-**git** tracks every change to plain text files — which is exactly what a ledger is. The agent commits your changes as you go, so mistakes are easy to undo, and pushing to a private remote gives you backups.
-
-Put them together and each piece covers the other's weakness. You speak naturally, the LLM figures out what you mean, hledger keeps the math honest, git makes every change traceable, and pi orchestrates the whole thing. That's the combination I ended up with after trying a few alternatives — and it's been working well ever since.
+**hledger** is a mature accounting engine with proper double-entry bookkeeping. **LLMs** understand plain language. **pi** is the agent framework that glues sessions, tools, and models. **git** tracks every change to plain text files.
 
 ## Credits
 
-Accountant24 wouldn't exist without these projects:
+Clarus builds on:
 
+- **[Accountant24](https://github.com/machulav/accountant24)** by Volodymyr Machula — the open-source base this product is forked from.
 - **[pi](https://github.com/badlogic/pi-mono)** by [Mario Zechner](https://github.com/badlogic) — a minimal but powerful framework for building AI agents.
 - **[hledger](https://hledger.org)** by [Simon Michael](https://github.com/simonmichael) — the accounting engine that makes proper double-entry bookkeeping possible.
 
-Both are remarkable pieces of software.
-
-## Contributing
-
-This is a personal project I use every day, and I'd love to hear from anyone else using it. Bug reports, ideas, feedback, pull requests — all welcome. If you're planning a bigger change, open an issue first so we can talk it through.
-
 ## License
 
-[MIT](LICENSE)
+MIT — see `LICENSE` and `NOTICE`.

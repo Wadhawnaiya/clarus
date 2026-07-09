@@ -9,7 +9,7 @@ import {
 import { cva, type VariantProps } from "class-variance-authority";
 import { BrainIcon, ChevronDownIcon } from "lucide-react";
 import { createContext, memo, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { MarkdownText } from "@/components/accountant24/markdown-text";
+import { MarkdownText } from "@/components/clarus/markdown-text";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/shadcn/collapsible";
 import { cn } from "@/lib/utils";
 

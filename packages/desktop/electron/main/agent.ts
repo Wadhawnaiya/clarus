@@ -102,8 +102,18 @@ export function killAgent(): void {
   }
 }
 
+/** Window getter captured at IPC registration — used by restartAgent() after folder switch. */
+let getMainWindow: (() => BrowserWindow | null) | null = null;
+
+/** Respawn the agent so it picks up a new workspace cwd/env (or re-reads auth/models). */
+export function restartAgent(): void {
+  killAgent();
+  if (getMainWindow) spawnAgent(getMainWindow);
+}
+
 /** Register agent IPC. Idempotent spawn guards against StrictMode double-mount. */
 export function registerAgentIpc(getWin: () => BrowserWindow | null): void {
+  getMainWindow = getWin;
   ipcMain.handle("agent_start", () => {
     if (!child) spawnAgent(getWin);
   });
@@ -118,7 +128,6 @@ export function registerAgentIpc(getWin: () => BrowserWindow | null): void {
   // Respawn the child so it re-reads auth.json + models.json — used after the app
   // adds/removes a provider, since the agent caches both in memory at startup.
   ipcMain.handle("agent_restart", () => {
-    killAgent();
-    spawnAgent(getWin);
+    restartAgent();
   });
 }

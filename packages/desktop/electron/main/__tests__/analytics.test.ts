@@ -37,9 +37,9 @@ vi.mock("electron", () => ({
     },
   },
 }));
-vi.mock("../env", () => ({ workspaceDir: () => "/ws" }));
+vi.mock("../env", () => ({ appConfigDir: () => "/app-config" }));
 
-const SETTINGS_PATH = "/ws/app-settings.json";
+const SETTINGS_PATH = "/app-config/app-settings.json";
 
 async function setup() {
   return await import("../analytics");

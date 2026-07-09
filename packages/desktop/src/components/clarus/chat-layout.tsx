@@ -22,6 +22,7 @@ import { agentBridge } from "@/runtime/agentBridge";
 import { createElectronPiClient } from "@/runtime/electronPiClient";
 import { ArchivingImageAttachmentAdapter, WorkspaceFileAttachmentAdapter } from "@/runtime/fileAttachmentAdapter";
 import { PiClientContext } from "@/runtime/modelsContext";
+import { ClientFolderMenu } from "./client-folder";
 import { Settings } from "./settings/settings";
 import { loadSidebarWidth, SidebarResizeHandle } from "./sidebar-resize";
 import { Thread } from "./thread";
@@ -111,6 +112,7 @@ export function ChatLayout() {
             <SidebarHeader>
               {/* spacer + drag region so the header clears the overlaid traffic lights */}
               <div className="app-drag-region h-7" />
+              <ClientFolderMenu />
               <ThreadListNew />
             </SidebarHeader>
             <SidebarContent className="scroll-fade">

@@ -15,11 +15,11 @@ import {
 } from "@assistant-ui/react";
 import { ArrowUpIcon, MicIcon, SquareIcon } from "lucide-react";
 import type { ClipboardEvent, FC } from "react";
-import { ComposerAddAttachment, ComposerAttachments } from "@/components/accountant24/attachment";
-import { ComposerModelSelector } from "@/components/accountant24/composer-model-selector";
-import { ComposerMentions, MentionChip } from "@/components/accountant24/mentions";
-import { RotatingPlaceholderInput } from "@/components/accountant24/rotating-placeholder";
-import { TooltipIconButton } from "@/components/accountant24/tooltip-icon-button";
+import { ComposerAddAttachment, ComposerAttachments } from "@/components/clarus/attachment";
+import { ComposerModelSelector } from "@/components/clarus/composer-model-selector";
+import { ComposerMentions, MentionChip } from "@/components/clarus/mentions";
+import { RotatingPlaceholderInput } from "@/components/clarus/rotating-placeholder";
+import { TooltipIconButton } from "@/components/clarus/tooltip-icon-button";
 import { Button } from "@/components/shadcn/button";
 import { InputGroup, InputGroupAddon } from "@/components/shadcn/input-group";
 

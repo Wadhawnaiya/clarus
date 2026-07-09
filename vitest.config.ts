@@ -7,7 +7,7 @@ import { defineConfig } from "vitest/config";
 // same imports for the production bundle (see scripts/bundle-extension.ts).
 function textImports(): Plugin {
   return {
-    name: "accountant24-text-imports",
+    name: "clarus-text-imports",
     enforce: "pre",
     transform(code, id) {
       if (!id.endsWith(".ts") || !code.includes('with { type: "text" }')) return null;
@@ -28,7 +28,7 @@ export default defineConfig({
     alias: { "@": new URL("./packages/desktop/src", import.meta.url).pathname },
   },
   test: {
-    include: ["packages/**/*.test.{ts,tsx}"],
+    include: ["packages/**/*.test.{ts,tsx}", "scripts/**/*.test.ts"],
     environment: "node",
     setupFiles: ["./vitest.setup.ts"],
     // bun:test reset mocks per test (the old tests reassigned Bun.spawn each time);

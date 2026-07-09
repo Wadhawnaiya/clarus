@@ -21,7 +21,7 @@ export interface ModelInfo {
   contextWindow?: number;
 }
 
-// ---- App settings (app-owned config in ~/Accountant24/settings.json) -----
+// ---- App settings (app-owned config in ~/Clarus/app-settings.json) -----
 
 /** A concrete model pick: provider + the provider's model id. */
 export interface ModelRef {
@@ -37,9 +37,18 @@ export interface AppSettings {
   enabledModels?: string[];
   /** Anonymous usage analytics opt-out. Absent = on (the default). */
   analyticsEnabled?: boolean;
+  /** Absolute path of the last opened client folder. */
+  lastClientPath?: string;
+  /** Recently opened client folder absolute paths, most recent first. */
+  recentClientPaths?: string[];
 }
 
-// ---- Auth helper records (`accountant24 auth ...`) ----------------------
+/** Active client workspace returned by workspace_get / open. */
+export interface WorkspaceInfo {
+  path: string;
+}
+
+// ---- Auth helper records (`clarus auth ...`) ----------------------
 
 export interface AuthProviderRow {
   provider: string;

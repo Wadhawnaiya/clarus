@@ -1,0 +1,74 @@
+# Build an unsigned Windows pilot artifact (NSIS + portable).
+# Dispatch-only for now so main release stays mac-focused until Windows is pilot-ready.
+#
+# Produces:
+#   packages/desktop/release/Clarus-Setup.exe
+#   packages/desktop/release/Clarus-Portable.exe
+# Uploaded as a workflow artifact (not a GitHub Release).
+
+name: Windows build
+
+on:
+  workflow_dispatch:
+  # Optional: validate Windows packaging on PRs that touch packaging / vendor paths
+  pull_request:
+    paths:
+      - "packages/desktop/electron-builder.yml"
+      - "scripts/vendor-bin.ts"
+      - "scripts/vendor-bin-sources.ts"
+      - "packages/desktop/package.json"
+      - "package.json"
+      - ".github/workflows/windows-build.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Vendor Windows CLI tools
+        # Downloads hledger + poppler; best-effort tesseract via winget when available.
+        run: npm run vendor:bin:win
+
+      - name: Build renderer + main + extension
+        run: npm run build
+
+      - name: Package Windows (unsigned)
+        working-directory: packages/desktop
+        env:
+          # Pilot: no Authenticode. Avoid accidental cert discovery on the runner.
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: npx electron-builder --win --x64 -c.extraMetadata.version=0.0.0-win-ci
+
+      - name: List release artifacts
+        shell: bash
+        run: ls -la packages/desktop/release/ || dir packages/desktop/release
+
+      - name: Upload Windows installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: clarus-windows-x64
+          path: |
+            packages/desktop/release/Clarus-Setup.exe
+            packages/desktop/release/Clarus-Portable.exe
+          if-no-files-found: error
+          retention-days: 14

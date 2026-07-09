@@ -12,14 +12,15 @@ import { join, resolve, sep } from "node:path";
 import { AuthStorage, ModelRegistry, SessionManager } from "@earendil-works/pi-coding-agent";
 import { type BrowserWindow, ipcMain, shell } from "electron";
 import { trackProviderConnected } from "./analytics";
-import { workspaceDir } from "./env";
+import { appConfigDir, workspaceDir } from "./env";
 
 type LoginCallbacks = Parameters<AuthStorage["login"]>[1];
 
 const OLLAMA_BASE_URL = "http://localhost:11434";
 
+/** Provider auth + models live in the stable app config dir so they survive client switches. */
 function paths() {
-  const home = workspaceDir();
+  const home = appConfigDir();
   return { home, authPath: join(home, "auth.json"), modelsPath: join(home, "models.json") };
 }
 
@@ -190,7 +191,7 @@ function writeOllamaModels(ids: string[]) {
 
 // Ollama defaults every model to a 4096-token context (num_ctx), regardless of
 // what the model supports — and its OpenAI-compatible endpoint (which pi uses)
-// ignores a per-request num_ctx. With the accountant24 system prompt alone near
+// ignores a per-request num_ctx. With the Clarus system prompt alone near
 // 4k tokens, replies come back empty (the context is full). The fix: bake a
 // larger num_ctx into each model in place via /api/create, which the OpenAI
 // endpoint *does* honor. This only adds a tiny config layer — it does not
@@ -282,7 +283,8 @@ function removeOllama() {
 }
 
 async function sessionsList() {
-  const infos = await SessionManager.list(workspaceDir(), sessionsDir());
+  // Agent dir (auth/models) is app config; sessions stay under the client folder.
+  const infos = await SessionManager.list(appConfigDir(), sessionsDir());
   const sessions = infos.map((s) => ({
     path: s.path,
     id: s.id,

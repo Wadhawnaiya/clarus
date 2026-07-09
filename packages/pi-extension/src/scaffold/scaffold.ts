@@ -1,7 +1,8 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { ACCOUNTANT24_HOME } from "../config";
+import { CLARUS_HOME } from "../config";
 import { commitAll, gitInit } from "../git";
+import { SCAFFOLD_COMMIT_MESSAGE } from "../product";
 // @ts-expect-error
 import gitignore from "./template/.gitignore" with { type: "text" };
 // @ts-expect-error
@@ -33,7 +34,7 @@ function writeIfNotExists(filePath: string, content: string): void {
 }
 
 export async function ensureScaffolded(): Promise<void> {
-  const home = ACCOUNTANT24_HOME;
+  const home = CLARUS_HOME;
 
   for (const dir of ["ledger", "files", "sessions"]) {
     mkdirSync(join(home, dir), { recursive: true });
@@ -47,6 +48,6 @@ export async function ensureScaffolded(): Promise<void> {
 
   const freshRepo = await gitInit(home);
   if (freshRepo) {
-    await commitAll(home, "Initial Accountant24 setup");
+    await commitAll(home, SCAFFOLD_COMMIT_MESSAGE);
   }
 }

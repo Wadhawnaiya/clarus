@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const OUT = join(ROOT, "packages", "desktop", "resources", "accountant24-extension.js");
+const OUT = join(ROOT, "packages", "desktop", "resources", "clarus-extension.js");
 
 const VIRTUAL_MODULES = [
   "@earendil-works/pi-coding-agent",

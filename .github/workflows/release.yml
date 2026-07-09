@@ -277,7 +277,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           TAG: ${{ needs.create-release.outputs.tag }}
-        run: gh release download "$TAG" --pattern 'Accountant24.dmg' --output app.dmg
+        run: gh release download "$TAG" --pattern 'Clarus.dmg' --output app.dmg
 
       - name: Gatekeeper checks (codesign, spctl, stapler, version)
         env:
@@ -286,7 +286,7 @@ jobs:
           MOUNT="$RUNNER_TEMP/dmg"
           hdiutil attach app.dmg -mountpoint "$MOUNT" -nobrowse -readonly
           trap 'hdiutil detach "$MOUNT" -quiet || true' EXIT
-          APP="$MOUNT/Accountant24.app"
+          APP="$MOUNT/Clarus.app"
 
           codesign --verify --deep --strict --verbose=2 "$APP"
 

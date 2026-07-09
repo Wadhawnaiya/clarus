@@ -1,2 +1,13 @@
+# Bundled agent extension (produced by scripts/bundle-extension.ts)
 accountant24-extension.js
+clarus-extension.js
+
+# OCR language data (produced by scripts/vendor-bin.ts)
 tessdata/*.traineddata
+
+# Vendored CLI tools + DLLs (produced by scripts/vendor-bin.ts) — keep README.md
+bin/*
+!bin/README.md
+
+# Temp downloads while vendoring
+.vendor-tmp/

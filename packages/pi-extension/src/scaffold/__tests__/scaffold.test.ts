@@ -4,10 +4,10 @@ import { join } from "node:path";
 import { afterAll, beforeEach, describe, expect, test, vi } from "vitest";
 import { spawnText } from "../../spawn";
 
-const BASE = mkdtempSync(join(tmpdir(), "accountant24-scaffold-"));
+const BASE = mkdtempSync(join(tmpdir(), "clarus-scaffold-"));
 
 vi.mock("../../config.js", () => ({
-  ACCOUNTANT24_HOME: BASE,
+  CLARUS_HOME: BASE,
   MEMORY_PATH: join(BASE, "memory.md"),
   LEDGER_DIR: join(BASE, "ledger"),
   setBaseDir: () => {},
@@ -53,7 +53,7 @@ describe("ensureScaffolded()", () => {
   test("should write main.journal with header and include directives", async () => {
     await ensureScaffolded();
     const content = readFileSync(join(BASE, "ledger", "main.journal"), "utf-8");
-    expect(content).toContain("; Accountant24");
+    expect(content).toContain("; Clarus");
     expect(content).toContain("include commodities.journal");
     expect(content).toContain("include accounts.journal");
   });
@@ -182,7 +182,7 @@ describe("ensureScaffolded()", () => {
   test("should create initial commit with scaffolded files", async () => {
     await ensureScaffolded();
     const { stdout: log } = await spawnText(["git", "log", "--oneline", "-1"], { cwd: BASE });
-    expect(log).toContain("Initial Accountant24 setup");
+    expect(log).toContain("Initial Clarus setup");
   });
 
   test("should not create another commit on second run", async () => {

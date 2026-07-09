@@ -1,14 +1,14 @@
 {
-  "name": "@accountant24/evals",
+  "name": "@clarus/evals",
   "version": "0.1.9",
   "private": true,
   "type": "module",
-  "description": "Evaluation harness for the Accountant24 agent.",
+  "description": "Evaluation harness for the Clarus agent.",
   "scripts": {
     "eval": "node --import tsx --import ../../scripts/text-import-register.mjs run.ts"
   },
   "dependencies": {
-    "@accountant24/pi-extension": "*",
+    "@clarus/pi-extension": "*",
     "@earendil-works/pi-agent-core": "0.79.8",
     "@earendil-works/pi-ai": "0.79.8",
     "@earendil-works/pi-coding-agent": "0.79.8",

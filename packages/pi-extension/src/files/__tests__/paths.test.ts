@@ -3,12 +3,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 
-const BASE = mkdtempSync(join(tmpdir(), "accountant24-file-paths-"));
+const BASE = mkdtempSync(join(tmpdir(), "clarus-file-paths-"));
 
 import { vi } from "vitest";
 
 vi.mock("../../config.js", () => ({
-  ACCOUNTANT24_HOME: BASE,
+  CLARUS_HOME: BASE,
   MEMORY_PATH: join(BASE, "memory.md"),
   LEDGER_DIR: join(BASE, "ledger"),
   FILES_DIR: join(BASE, "files"),
@@ -37,7 +37,7 @@ describe("resolveWorkspacePath()", () => {
 
   describe("absolute paths", () => {
     test("should reject absolute paths", () => {
-      expect(() => resolveWorkspacePath("/Users/volodymyr/Accountant24/files/file.pdf")).toThrow(
+      expect(() => resolveWorkspacePath("/Users/volodymyr/Clarus/files/file.pdf")).toThrow(
         "Absolute paths are not accepted",
       );
     });
@@ -49,7 +49,7 @@ describe("resolveWorkspacePath()", () => {
 
   describe("tilde paths", () => {
     test("should reject tilde-prefixed paths", () => {
-      expect(() => resolveWorkspacePath("~/Accountant24/files/file.pdf")).toThrow("Tilde paths are not accepted");
+      expect(() => resolveWorkspacePath("~/Clarus/files/file.pdf")).toThrow("Tilde paths are not accepted");
     });
 
     test("should include the rejected path in error message", () => {

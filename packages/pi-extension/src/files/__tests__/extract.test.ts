@@ -3,12 +3,12 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { describe, expect, test } from "vitest";
 
-const BASE = mkdtempSync(join(tmpdir(), "accountant24-file-extract-"));
+const BASE = mkdtempSync(join(tmpdir(), "clarus-file-extract-"));
 
 import { vi } from "vitest";
 
 vi.mock("../../config.js", () => ({
-  ACCOUNTANT24_HOME: BASE,
+  CLARUS_HOME: BASE,
   MEMORY_PATH: join(BASE, "memory.md"),
   LEDGER_DIR: join(BASE, "ledger"),
   FILES_DIR: join(BASE, "files"),
@@ -269,7 +269,7 @@ startxref
       const { extractTextTool } = await import("../../tools/extract-text.js");
 
       await expect(
-        extractTextTool.execute("id", { file_path: "~/Accountant24/files/file.pdf" }, undefined, undefined, {} as any),
+        extractTextTool.execute("id", { file_path: "~/Clarus/files/file.pdf" }, undefined, undefined, {} as any),
       ).rejects.toThrow("Tilde paths are not accepted");
     });
   });

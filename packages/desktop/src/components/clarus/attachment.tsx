@@ -17,8 +17,8 @@ import {
 } from "@assistant-ui/react";
 import { FileTextIcon, PaperclipIcon, XIcon } from "lucide-react";
 import { type FC, useEffect, useState } from "react";
-import { LedgerDirectiveText } from "@/components/accountant24/mentions";
-import { TooltipIconButton } from "@/components/accountant24/tooltip-icon-button";
+import { LedgerDirectiveText } from "@/components/clarus/mentions";
+import { TooltipIconButton } from "@/components/clarus/tooltip-icon-button";
 import {
   Attachment,
   AttachmentAction,

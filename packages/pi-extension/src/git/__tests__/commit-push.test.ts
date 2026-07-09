@@ -9,7 +9,7 @@ import { commitAll, gitInit, hasChanges } from "../git";
 
 vi.mock("../../spawn");
 
-const BASE = mkdtempSync(join(tmpdir(), "accountant24-commitpush-"));
+const BASE = mkdtempSync(join(tmpdir(), "clarus-commitpush-"));
 
 // Real git for test setup/verification, independent of the spawnText mock.
 function git(args: string[], cwd: string): string {

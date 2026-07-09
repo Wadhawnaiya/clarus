@@ -29,13 +29,13 @@ The desktop app uses the **wrapper pattern**: library components stay untouched;
 `packages/desktop/src/components/`:
 
 - `shadcn/` — stock shadcn/ui components (Base UI-based). **Never edit**; add/update only via `scripts/shadcn.sh`. The whole shadcn catalog (select, tabs, card, dropdown-menu, table, …) is available on demand: `sh packages/desktop/scripts/shadcn.sh add <component>` — install before building custom UI.
-- `accountant24/` — all our components: wrappers around shadcn, customized assistant-ui components, app UI.
+- `clarus/` — all our components: wrappers around shadcn, customized assistant-ui components, app UI.
 
 ## Rules
 
 - Naming: kebab-case file names (`composer-model-selector.tsx`), PascalCase component names (`ComposerModelSelector`).
 - Build UI/UX from stock `shadcn/` components with their default look wherever possible; customize only when absolutely necessary.
-- When customization is necessary, wrap the library component with a new component in `accountant24/` — don't edit the original.
+- When customization is necessary, wrap the library component with a new component in `clarus/` — don't edit the original.
 - Style with theme tokens from `src/index.css`; no hardcoded colors.
 - **No speculative style overrides.** Never add custom classes/styles to work around a behavior before finding its root cause — fix the cause instead. Add an override only when verified necessary (reproduce the problem, confirm the override is the minimal fix), and comment why it exists.
 - Dark theme follows the OS: `src/lib/systemTheme.ts` toggles the `.dark` class globally — no per-component theme handling.

@@ -22,13 +22,11 @@ export function Onboarding() {
       <div className="animate-in fade-in slide-in-from-bottom-2 motion-reduce:animate-none flex min-h-full flex-col px-6 pt-12 pb-4 duration-500">
         <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center gap-8">
           <header className="flex flex-col gap-3 text-center">
-            <div className="text-muted-foreground text-sm font-medium tracking-tight">Accountant24</div>
-            <h1 className="text-3xl font-semibold tracking-tight text-balance">
-              Local-first AI agent for personal finance
-            </h1>
+            <div className="text-muted-foreground text-sm font-medium tracking-tight">Clarus</div>
+            <h1 className="text-3xl font-semibold tracking-tight text-balance">Local-first AI for firm bookkeeping</h1>
             <p className="text-muted-foreground text-sm text-pretty">
-              Log spending, import statements, and ask anything about your finances. Your data stays in plain-text files
-              on your device.
+              Prepare client books, import statements and documents, and get review-ready workpapers. Your data stays in
+              plain-text files on your device.
             </p>
           </header>
 
@@ -56,8 +54,8 @@ export function Onboarding() {
         </div>
 
         <p className="text-muted-foreground/70 mx-auto max-w-xl pt-8 text-center text-xs text-pretty">
-          We collect anonymous analytics to improve Accountant24. Your personal or financial data is never sent. You can
-          turn this off any time in Settings → Privacy.
+          We collect anonymous analytics to improve Clarus. Your personal or financial data is never sent. You can turn
+          this off any time in Settings → Privacy.
         </p>
       </div>
       <Settings open={settingsOpen} onOpenChange={setSettingsOpen} />
