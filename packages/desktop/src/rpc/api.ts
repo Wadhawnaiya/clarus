@@ -12,6 +12,9 @@ import type {
   AuthModels,
   AuthProviders,
   AuthStatus,
+  CustomProviderInfo,
+  CustomTestResult,
+  CustomUpsertInput,
   LedgerMentions,
   OllamaInfo,
   SessionSummary,
@@ -159,4 +162,15 @@ export const authApi = {
     api.on("auth-event", (payload) => cb(payload as AuthEvent)),
   onTerminated: async (cb: (code: number | null) => void): Promise<() => void> =>
     api.on("auth-terminated", (payload) => cb(payload as number | null)),
+};
+
+export const customApi = {
+  list: () => api.invoke<CustomProviderInfo[]>("custom_list"),
+  upsert: (input: CustomUpsertInput) =>
+    api.invoke<{ type: string; id?: string; message?: string }>("custom_upsert", input),
+  remove: (id: string) => api.invoke<{ type: string; message?: string }>("custom_remove", { id }),
+  /** "Test connection" + "Fetch models": GET {baseUrl}/models. When `id` is given
+   *  and `key` is blank, main falls back to the stored key. */
+  test: (baseUrl: string, key: string, id?: string) =>
+    api.invoke<CustomTestResult>("custom_test", { baseUrl, key, id }),
 };

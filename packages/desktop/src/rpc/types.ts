@@ -92,6 +92,28 @@ export interface OllamaInfo {
   models: string[];
 }
 
+// ---- Custom OpenAI-compatible providers (Settings → Providers) -----------
+
+/** An app-managed custom provider parsed from models.json (id starts with "custom-"). */
+export interface CustomProviderInfo {
+  id: string;
+  name: string;
+  baseUrl: string;
+  models: string[];
+}
+
+/** On add, `id` is omitted (derived from the name). On edit, `id` selects the
+ *  entry and an omitted `key` keeps the stored one. */
+export interface CustomUpsertInput {
+  id?: string;
+  name: string;
+  baseUrl: string;
+  key?: string;
+  modelIds: string[];
+}
+
+export type CustomTestResult = { ok: true; modelIds: string[] } | { ok: false; error: string };
+
 // Streamed during an interactive OAuth login.
 export type AuthEvent =
   | { type: "auth"; url: string; instructions?: string }
