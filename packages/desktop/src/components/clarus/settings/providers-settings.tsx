@@ -15,8 +15,9 @@ import {
   featuredCloudBadge,
   isFeaturedCloudApiProvider,
 } from "@/lib/providerHints";
-import { agentApi, authApi, settingsApi } from "@/rpc/api";
-import type { AuthProviderRow, AuthStatus } from "@/rpc/types";
+import { agentApi, authApi, customApi, settingsApi } from "@/rpc/api";
+import type { AuthProviderRow, AuthStatus, CustomProviderInfo } from "@/rpc/types";
+import { CustomProviderDialog } from "./custom-provider-dialog";
 import { ErrorBanner, Section } from "./parts";
 
 type ActionState = { kind: "apikey"; provider: string } | null;
@@ -62,6 +63,55 @@ function ProvidersList({ status, reload }: { status: AuthStatus | null; reload: 
     signingProvider.current = null;
     void (provider ? afterAdd(provider) : reload());
   });
+
+  // ---- custom OpenAI-compatible providers ----------------------------------
+
+  const [customProviders, setCustomProviders] = useState<CustomProviderInfo[]>([]);
+  const [customDialogOpen, setCustomDialogOpen] = useState(false);
+  const [customEditing, setCustomEditing] = useState<CustomProviderInfo | null>(null);
+  const [customError, setCustomError] = useState<string | null>(null);
+
+  const reloadCustom = useCallback(async () => {
+    try {
+      setCustomProviders(await customApi.list());
+    } catch {
+      // Best-effort: the section can lag one render behind on failure.
+    }
+  }, []);
+
+  useEffect(() => {
+    void reloadCustom();
+  }, [reloadCustom]);
+
+  const savedCustom = useCallback(
+    async (id: string) => {
+      // Same chain as cloud keys: restart so the agent re-reads models.json/auth.json,
+      // widen the composer's enabled list, refresh both provider views.
+      await afterAdd(id);
+      await reloadCustom();
+    },
+    [afterAdd, reloadCustom],
+  );
+
+  const removeCustom = useCallback(
+    async (id: string) => {
+      setCustomError(null);
+      try {
+        const result = await customApi.remove(id);
+        if (result.type === "error") throw new Error(result.message ?? "Failed to remove provider");
+        // A default model from the removed provider is now dangling — clear it.
+        const settings = await settingsApi.get();
+        if (parseModelId(settings.defaultModel ?? "")?.provider === id)
+          await settingsApi.set({ defaultModel: undefined });
+        await agentApi.restart();
+        await reloadCustom();
+        await reload();
+      } catch (e) {
+        setCustomError(String(e));
+      }
+    },
+    [reload, reloadCustom],
+  );
 
   useEffect(() => {
     authApi
@@ -162,9 +212,67 @@ function ProvidersList({ status, reload }: { status: AuthStatus | null; reload: 
           <div className="flex flex-col gap-1">{featuredAvailable.map(renderRow)}</div>
         </Section>
       )}
+      <Section
+        title="Custom API (OpenAI-compatible)"
+        description="Point Clarus at any OpenAI-compatible endpoint — LM Studio, vLLM, or a hosted gateway."
+      >
+        {customProviders.length > 0 && (
+          <div className="flex flex-col gap-1">
+            {customProviders.map((cp) => (
+              <div
+                key={cp.id}
+                className="hover:bg-muted/50 flex items-center justify-between gap-3 rounded-md px-2 py-1.5"
+              >
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-medium">{cp.name}</div>
+                  <div className="text-muted-foreground truncate text-xs">
+                    {cp.baseUrl} · {cp.models.length} model{cp.models.length === 1 ? "" : "s"}
+                  </div>
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setCustomError(null);
+                      setCustomEditing(cp);
+                      setCustomDialogOpen(true);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                  <Button size="sm" variant="outline" className="w-28" onClick={() => void removeCustom(cp.id)}>
+                    Remove
+                  </Button>
+                </div>
+              </div>
+            ))}
+            {customError && <ErrorBanner message={customError} />}
+          </div>
+        )}
+        <div className={customProviders.length > 0 ? "pt-1" : ""}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setCustomError(null);
+              setCustomEditing(null);
+              setCustomDialogOpen(true);
+            }}
+          >
+            Add provider
+          </Button>
+        </div>
+      </Section>
       <Section title="Available" description="Connect a provider to use its models (subscription, API key, or local).">
         <div className="flex flex-col gap-1">{availableItems.map((it) => it.node)}</div>
       </Section>
+      <CustomProviderDialog
+        open={customDialogOpen}
+        onOpenChange={setCustomDialogOpen}
+        editing={customEditing}
+        onSaved={savedCustom}
+      />
     </>
   );
 }

@@ -12,6 +12,14 @@ import { join, resolve, sep } from "node:path";
 import { AuthStorage, ModelRegistry, SessionManager } from "@earendil-works/pi-coding-agent";
 import { type BrowserWindow, ipcMain, shell } from "electron";
 import { trackProviderConnected } from "./analytics";
+import {
+  type CustomResult,
+  type CustomUpsertInput,
+  fetchCustomModels,
+  readCustomProviders,
+  removeCustomProvider,
+  upsertCustomProvider,
+} from "./customProviders";
 import { appConfigDir, workspaceDir } from "./env";
 
 type LoginCallbacks = Parameters<AuthStorage["login"]>[1];
@@ -282,6 +290,46 @@ function removeOllama() {
   return { type: "done", provider: "ollama" };
 }
 
+// ---- custom OpenAI-compatible providers (app-managed models.json slice) ----
+
+function customList() {
+  return readCustomProviders(paths().modelsPath);
+}
+
+function customUpsert(input: CustomUpsertInput): CustomResult {
+  const { modelsPath } = paths();
+  const { authStorage } = createRegistry();
+  return upsertCustomProvider(
+    input,
+    { modelsPath },
+    {
+      storeKey: (id, key) => {
+        authStorage.set(id, { type: "api_key", key });
+        trackProviderConnected(id, "api_key");
+      },
+      deleteKey: (id) => createRegistry().authStorage.logout(id),
+    },
+  );
+}
+
+function customRemove(id: string): CustomResult {
+  return removeCustomProvider(
+    id,
+    { modelsPath: paths().modelsPath },
+    {
+      deleteKey: (pid) => createRegistry().authStorage.logout(pid),
+    },
+  );
+}
+
+/** "Test connection" / "Fetch models". When editing and the key field is left
+ *  blank, fall back to the key already stored in auth.json. */
+async function customTest(baseUrl: string, key: string | undefined, id: string | undefined) {
+  const storedKey =
+    !key?.trim() && id ? await createRegistry().authStorage.getApiKey(id, { includeFallback: false }) : undefined;
+  return fetchCustomModels(baseUrl, key?.trim() || storedKey || "");
+}
+
 async function sessionsList() {
   // Agent dir (auth/models) is app config; sessions stay under the client folder.
   const infos = await SessionManager.list(appConfigDir(), sessionsDir());
@@ -400,6 +448,12 @@ export function registerPiIpc(getWin: () => BrowserWindow | null): void {
   ipcMain.handle("auth_add_ollama", (_e, { model }: { model: string }) => addOllama(model));
   ipcMain.handle("auth_add_all_ollama", () => addAllOllama());
   ipcMain.handle("auth_remove_ollama", () => removeOllama());
+  ipcMain.handle("custom_list", () => customList());
+  ipcMain.handle("custom_upsert", (_e, input: CustomUpsertInput) => customUpsert(input));
+  ipcMain.handle("custom_remove", (_e, { id }: { id: string }) => customRemove(id));
+  ipcMain.handle("custom_test", (_e, { baseUrl, key, id }: { baseUrl: string; key?: string; id?: string }) =>
+    customTest(baseUrl, key, id),
+  );
   ipcMain.handle("auth_login", (_e, { provider }: { provider: string }) => authLogin(getWin, provider));
   ipcMain.handle("auth_login_respond", (_e, { id, value }: { id: string; value: string | null }) =>
     authLoginRespond(id, value),
